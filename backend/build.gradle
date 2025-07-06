@@ -51,7 +51,6 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test' // 기본 테스트 지원
 	testImplementation 'org.springframework.security:spring-security-test' // Security 관련 테스트 지원
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 실행기
-	testImplementation 'com.h2database:h2' // H2 인메모리 데이터베이스 (테스트용)
 
 	// .env 파일 지원을 위한 의존성
 	implementation 'me.paulschwarz:spring-dotenv:3.0.0'
