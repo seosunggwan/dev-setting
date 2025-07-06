@@ -1,4 +1,14 @@
 # ===========================================
+# Project Specific
+# ===========================================
+# Portfolio project keys
+portfolio-key.*
+portfolio-key
+
+# Spring Boot
+HELP.md
+
+# ===========================================
 # Java & Spring Boot
 # ===========================================
 # Compiled class file
@@ -25,6 +35,13 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Gradle
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
 
 # ===========================================
 # Node.js & Frontend
@@ -83,15 +100,41 @@ grafana_data/
 config/secrets.yml
 secrets.yml
 
+# Azure configuration
+azure-app-settings.json
+*.azurewebsites.net
+.azure/
+
 # ===========================================
 # IDE & Editors
 # ===========================================
+# Spring Tool Suite (STS)
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
 # IntelliJ IDEA
-.idea/
+.idea
 *.iws
 *.iml
 *.ipr
 out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
 
 # Visual Studio Code
 .vscode/
@@ -102,14 +145,6 @@ out/
 .classpath
 .settings/
 .metadata/
-
-# NetBeans
-nbproject/
-build/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
 
 # Vim
 *.swp
@@ -182,10 +217,35 @@ id_dsa.pub
 api-keys.json
 credentials.json
 
-# Azure configuration
-azure-app-settings.json
-*.azurewebsites.net
-.azure/
+# ===========================================
+# Terraform
+# ===========================================
+# Local .terraform directories
+.terraform/
+.terraform.lock.hcl
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+
+# Ignore any .tfvars files that are generated automatically
+*.tfvars
+*.tfvars.json
+
+# Ignore override files as they are usually used to override resources locally
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Include override files you do wish to add to version control using negated pattern
+# !example_override.tf
+
+# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
+*tfplan*
 
 # ===========================================
 # Monitoring & Analytics
@@ -227,36 +287,6 @@ coverage/
 # JUnit test results
 test-results/
 TEST-*.xml
-
-# ===========================================
-# Terraform
-# ===========================================
-# Local .terraform directories
-.terraform/
-.terraform.lock.hcl
-
-# .tfstate files
-*.tfstate
-*.tfstate.*
-
-# Crash log files
-crash.log
-
-# Ignore any .tfvars files that are generated automatically
-*.tfvars
-*.tfvars.json
-
-# Ignore override files as they are usually used to override resources locally
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
-
-# Include override files you do wish to add to version control using negated pattern
-# !example_override.tf
-
-# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-*tfplan*
 
 # ===========================================
 # Miscellaneous
