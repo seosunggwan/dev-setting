@@ -289,7 +289,7 @@ output "public_ip" {
 }
 
 output "ssh_command" {
-  value = "ssh -i portfolio-key.pem ubuntu@${aws_eip.app.public_ip}"
+  value = "ssh -i ${var.key_name != null ? var.key_name : "your-key-file"}.pem ubuntu@${aws_eip.app.public_ip}"
 }
 
 output "instance_id" {
@@ -343,10 +343,10 @@ output "ecr_repository_url" {
   value = aws_ecr_repository.app.repository_url
 }
 
-# 키 페어 생성
+# 키 페어 생성 (주의: 실제 사용 시에는 공개키를 별도로 관리하세요)
 resource "aws_key_pair" "portfolio" {
-  key_name   = "portfolio-key"
-  public_key = file("${path.module}/portfolio-key.pub")  # 로컬에 있는 public key 파일 경로
+  key_name   = var.key_name != null ? var.key_name : "portfolio-key"
+  public_key = var.public_key_content != null ? var.public_key_content : "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7... # 실제 공개키로 교체 필요"
 }
 
 # RDS 보안 그룹
