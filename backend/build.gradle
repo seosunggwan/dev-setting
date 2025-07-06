@@ -52,6 +52,15 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test' // Security 관련 테스트 지원
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 실행기
 
+	// H2 데이터베이스 (테스트 전용)
+	testImplementation 'com.h2database:h2:2.2.224'
+
+	// TestContainers 의존성 - 실제 DB 환경으로 테스트 (선택사항)
+	testImplementation 'org.testcontainers:junit-jupiter:1.19.3'
+	testImplementation 'org.testcontainers:mysql:1.19.3'
+	testImplementation 'org.testcontainers:testcontainers:1.19.3'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+
 	// .env 파일 지원을 위한 의존성
 	implementation 'me.paulschwarz:spring-dotenv:3.0.0'
 
