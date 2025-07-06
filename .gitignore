@@ -306,3 +306,12 @@ Thumbs.db
 # Uncomment if needed:
 # package-lock.json
 # yarn.lock
+
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+terraform.tfvars
+.env
