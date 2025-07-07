@@ -1,9 +1,6 @@
 package com.example.backend;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-
 /**
  * 메인 애플리케이션 테스트 클래스
  * - H2 인메모리 데이터베이스 사용

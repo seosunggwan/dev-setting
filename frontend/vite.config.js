@@ -13,9 +13,19 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ["stompjs"],
+    include: [
+      "stompjs",
+      "@mui/material",
+      "@mui/icons-material",
+      "react",
+      "react-dom",
+      "react-router-dom",
+      "date-fns"
+    ],
+    exclude: ['js-big-decimal'],
   },
   server: {
+    force: true, // 의존성 최적화 강제 실행
     proxy: {
       "/api": {
         target: "http://localhost:8080",
