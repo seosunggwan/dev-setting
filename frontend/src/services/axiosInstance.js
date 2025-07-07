@@ -1,11 +1,23 @@
 import axios from "axios";
 import fetchReissue from "./fetchReissue";
 
+// 환경에 따른 API 베이스 URL 설정
+const getBaseURL = () => {
+  if (import.meta.env.MODE === 'development') {
+    return "http://localhost:8080/api";
+  } else if (import.meta.env.MODE === 'production') {
+    // 운영 환경에서는 EC2 IP 또는 도메인 사용
+    return import.meta.env.VITE_API_BASE_URL || "http://your-ec2-ip:8080/api";
+  }
+  return "http://localhost:8080/api";
+};
+
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: getBaseURL(),
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 10000, // 10초 타임아웃
 });
 
 axiosInstance.interceptors.request.use(

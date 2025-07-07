@@ -38,10 +38,20 @@ replay_pid*
 
 # Gradle
 .gradle
-build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+
+# 배포에 불필요한 build 하위 폴더들만 제외
+build/tmp/
+build/classes/
+build/generated/
+build/resources/
+build/resolvedMainClassName
+
+# 배포용 JAR 파일은 포함 (순서 중요!)
+!build/libs/*.jar
+build/libs/*-plain.jar
 
 # ===========================================
 # Node.js & Frontend
