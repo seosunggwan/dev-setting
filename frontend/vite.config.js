@@ -32,7 +32,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         ws: true,
-        // rewrite: (path) => path.replace(/^\/api/, ""), // prefix 제거
+        rewrite: (path) => path.replace(/^\/api/, ""),// prefix 제거
         headers: {
           Connection: "keep-alive",
         },
