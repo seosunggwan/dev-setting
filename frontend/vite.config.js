@@ -25,14 +25,14 @@ export default defineConfig({
     exclude: ['js-big-decimal'],
   },
   server: {
+    host: '0.0.0.0', // 모든 인터페이스에서 접근 가능
     force: true, // 의존성 최적화 강제 실행
     proxy: {
       "/api": {
-        target: "http://localhost:8080", // ← 여기 IPv4 명시
+        target: "http://app:8080", // Docker 서비스 이름 사용
         changeOrigin: true,
         secure: false,
         ws: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),// prefix 제거
         headers: {
           Connection: "keep-alive",
         },

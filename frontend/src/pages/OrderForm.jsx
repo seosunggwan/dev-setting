@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../services/axiosInstance";
 import { useLogin } from "../contexts/AuthContext";
 
 const OrderForm = () => {
@@ -33,11 +33,7 @@ const OrderForm = () => {
           return;
         }
 
-        const res = await axios.get("/api/orders/form", {
-          headers: { 
-            Authorization: `Bearer ${token}`   // ← 백틱 필수!
-          },
-        });
+        const res = await axiosInstance.get("/orders/form");
 
         setMembers(Array.isArray(res.data.members) ? res.data.members : []);
         setItems(  Array.isArray(res.data.items)   ? res.data.items   : []);
@@ -68,16 +64,11 @@ const OrderForm = () => {
         return;
       }
 
-      await axios.post(
-        "/api/orders",
-        { memberId: selectedMember, itemId: selectedItem, count },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,  // ← 여기에도 백틱!
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await axiosInstance.post("/orders", { 
+        memberId: selectedMember, 
+        itemId: selectedItem, 
+        count 
+      });
       navigate("/orders");  // 주문 목록으로
     } catch (e) {
       console.error("주문 생성 실패:", e);

@@ -3,7 +3,8 @@ import fetchReissue from "./fetchReissue";
 
 // 환경에 따른 API 베이스 URL 설정
 const getBaseURL = () => {
-  return `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"}/api`;
+  // 개발 환경에서는 Vite 프록시를 사용하도록 상대 경로 설정
+  return "/api";
 };
 
 const axiosInstance = axios.create({
@@ -19,7 +20,7 @@ axiosInstance.interceptors.request.use(
     const token = localStorage.getItem("access_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log("요청 헤더:", config.headers);
+      console.log(`요청 인터셉터: ${config.url}에 토큰 추가됨`);
     } else {
       console.log("토큰이 없습니다.");
     }
@@ -31,12 +32,14 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
+    console.log(`응답 에러: ${error.config.url}, 상태: ${error.response?.status}`);
     const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       console.log("🔄 401 에러 발생, 토큰 갱신 시도 중...");
       const success = await fetchReissue();
       if (success) {
+        console.log("✅ 토큰 갱신 성공, 요청 재시도");
         const token = localStorage.getItem("access_token");
         originalRequest.headers.Authorization = `Bearer ${token}`;
         return axiosInstance(originalRequest);
