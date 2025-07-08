@@ -171,12 +171,12 @@ export default function NavBar() {
               <ListItemText primary="간단한 채팅" />
             </ListItem>
 
-            <ListItem button onClick={() => handleNavigate("/chat")}>
+            {/* <ListItem button onClick={() => handleNavigate("/chat")}>
               <ListItemIcon>
                 <MessageIcon />
               </ListItemIcon>
               <ListItemText primary="채팅" />
-            </ListItem>
+            </ListItem> */}
 
             <ListItem
               button
@@ -285,7 +285,7 @@ export default function NavBar() {
               {/* 로그인한 경우 */}
               {isLoggedIn && (
                 <>
-                  <Button
+                  {/* <Button
                     color="inherit"
                     component={Link}
                     to="/chat"
@@ -293,7 +293,7 @@ export default function NavBar() {
                     startIcon={<MessageIcon />}
                   >
                     채팅
-                  </Button>
+                  </Button> */}
                   <Button
                     color="inherit"
                     component={Link}
