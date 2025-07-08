@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/boards")
+@RequestMapping("/boards")
 @RequiredArgsConstructor
 @Slf4j
 public class BoardLikeController {

@@ -10,7 +10,7 @@ const fetchReissue = async (retryCount = 0) => {
     // Refresh Token은 HttpOnly 쿠키로 전송되므로, 별도의 헤더 설정 없이 호출
     const response = await axios({
       method: "POST",
-      url: `${import.meta.env.VITE_API_BASE_URL}/reissue`,
+      url: `${import.meta.env.VITE_API_BASE_URL}/api/reissue`,
       withCredentials: true, // 쿠키가 자동으로 전송됨
     });
 

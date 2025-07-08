@@ -76,7 +76,7 @@ const MyChatPage = () => {
   const checkServerStatus = async () => {
     try {
       // 서버 상태 확인은 기본 axios로 유지 (인증 필요 없음)
-      const response = await axios.get(`${API_BASE_URL}/health`, {
+      const response = await axios.get(`${API_BASE_URL}/api/health`, {
         timeout: 5000,
       });
       if (response.status === 200) {
@@ -123,7 +123,7 @@ const MyChatPage = () => {
         `/chat/my/rooms${queryString ? "?" + queryString : ""}`
       );
 
-      const response = await axiosInstance.get("/chat/my/rooms", { params });
+      const response = await axiosInstance.get("/api/chat/my/rooms", { params });
 
       // 응답 상태 확인
       console.log("응답 상태 코드:", response.status);
@@ -163,7 +163,7 @@ const MyChatPage = () => {
   const leaveChatRoom = async (roomId) => {
     try {
       // axiosInstance 사용 (인터셉터에서 토큰 관리)
-      await axiosInstance.delete(`/chat/room/group/${roomId}/leave`);
+      await axiosInstance.delete(`/api/chat/room/group/${roomId}/leave`);
       setChatList(chatList.filter((chat) => chat.roomId !== roomId));
     } catch (error) {
       console.error("채팅방 나가기 실패:", error);

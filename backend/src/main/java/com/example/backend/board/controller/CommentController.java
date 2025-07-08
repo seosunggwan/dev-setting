@@ -21,7 +21,7 @@ import java.util.Map;
  * - URI: /api/boards/{boardId}/comments
  */
 @RestController
-@RequestMapping("/api/boards/{boardId}/comments")
+@RequestMapping("/boards/{boardId}/comments")
 @RequiredArgsConstructor
 @Slf4j
 public class CommentController {

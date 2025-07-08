@@ -23,7 +23,7 @@ const Logout = () => {
       const response = await fetch(
         `${
           import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
-        }/auth/logout`,
+        }/auths/logout`,
         {
           method: "POST",
           credentials: "include",

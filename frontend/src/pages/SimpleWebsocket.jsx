@@ -9,7 +9,7 @@ const SimpleWebsocket = () => {
   useEffect(() => {
     const loadStomp = async () => {
       const Stomp = (await import("stompjs")).default; // ✅ Dynamic Import 사용
-      const socket = new SockJS("http://localhost:8080/connect");
+      const socket = new SockJS(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"}/connect`);
       const client = Stomp.over(socket);
 
       client.connect({}, () => {

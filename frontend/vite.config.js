@@ -28,10 +28,11 @@ export default defineConfig({
     force: true, // 의존성 최적화 강제 실행
     proxy: {
       "/api": {
-        target: "http://localhost:8080",
+        target: "http://localhost:8080", // ← 여기 IPv4 명시
         changeOrigin: true,
         secure: false,
         ws: true,
+        // rewrite: (path) => path.replace(/^\/api/, ""), // prefix 제거
         headers: {
           Connection: "keep-alive",
         },

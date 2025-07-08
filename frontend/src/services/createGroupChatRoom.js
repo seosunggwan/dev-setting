@@ -9,7 +9,7 @@ import { redirectToLogin } from "../utils/auth";
 const createGroupChatRoom = async (roomName, navigate, location) => {
   try {
     // axios 인스턴스 사용 (인터셉터에서 토큰 만료 처리)
-    const response = await axiosInstance.post(`/chat/room/group/create`, null, {
+    const response = await axiosInstance.post(`/api/chat/room/group/create`, null, {
       params: { roomName },
     });
 

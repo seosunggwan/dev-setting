@@ -1,29 +1,49 @@
 # ===========================================
-# Project Specific
+# Frontend (from frontend/.gitignore)
 # ===========================================
-# Portfolio project keys
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+# node_modules/는 이미 포함되어 있음
+
+dist
+# dist/는 이미 포함되어 있음
+
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ===========================================
+# 기존 루트 .gitignore 내용 (중복 제거)
+# ===========================================
+# Project Specific
 portfolio-key.*
 portfolio-key
 
 # Spring Boot
 HELP.md
 
-# ===========================================
 # Java & Spring Boot
-# ===========================================
-# Compiled class file
 *.class
-
-# Log file
 *.log
-
-# BlueJ files
 *.ctxt
-
-# Mobile Tools for Java (J2ME)
 .mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
 *.nar
@@ -31,93 +51,62 @@ HELP.md
 *.zip
 *.tar.gz
 *.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
-
-# Gradle
 .gradle
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-
-# 배포에 불필요한 build 하위 폴더들만 제외
 build/tmp/
 build/classes/
 build/generated/
 build/resources/
 build/resolvedMainClassName
-
-# 배포용 JAR 파일은 포함 (순서 중요!)
 !build/libs/*.jar
 build/libs/*-plain.jar
 
-# ===========================================
 # Node.js & Frontend
-# ===========================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-# Build outputs
 dist/
 *.local
 
-# ===========================================
 # Docker & Containers
-# ===========================================
-# Docker volumes and data
 docker-volumes/
 mysql_data/
 redis_data/
 grafana_data/
-
-# Docker logs
 *.docker.log
 
-# ===========================================
 # Database
-# ===========================================
 *.sqlite
 *.sqlite3
 *.db
 *.db-journal
 *.db-wal
 *.db-shm
-
-# MySQL dumps
 *.sql
 *.dump
 
-# ===========================================
 # Environment & Configuration
-# ===========================================
-# Environment variables
-.env
+# .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-
-# Configuration files with sensitive data
 **/application-*.yml
 **/application-*.properties
 config/secrets.yml
 secrets.yml
-
-# Azure configuration
 azure-app-settings.json
 *.azurewebsites.net
 .azure/
 
-# ===========================================
 # IDE & Editors
-# ===========================================
-# Spring Tool Suite (STS)
 .apt_generated
 .classpath
 .factorypath
@@ -128,8 +117,6 @@ azure-app-settings.json
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-
-# IntelliJ IDEA
 .idea
 *.iws
 *.iml
@@ -137,63 +124,41 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-
-# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-
-# Visual Studio Code
 .vscode/
 !.vscode/extensions.json
-
-# Eclipse
 .project
 .classpath
 .settings/
 .metadata/
-
-# Vim
 *.swp
 *.swo
 *~
-
-# Emacs
 *~
 \#*\#
 .\#*
 
-# ===========================================
 # Operating System
-# ===========================================
-# macOS
 .DS_Store
 .AppleDouble
 .LSOverride
 Icon
-
-# Windows
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
-
-# Linux
 *~
 .directory
 .trash-*
 
-# ===========================================
 # Logs & Temporary Files
-# ===========================================
-# Application logs
 logs/
 *.log
 log/
-
-# Temporary files
 tmp/
 temp/
 *.tmp
@@ -203,78 +168,45 @@ temp/
 .cache/
 *.cache
 
-# ===========================================
 # Security & Credentials
-# ===========================================
-# SSL certificates
 *.pem
 *.key
 *.crt
 *.csr
 *.p12
 *.pfx
-
-# SSH keys
 id_rsa
 id_rsa.pub
 id_dsa
 id_dsa.pub
-
-# API keys and tokens
 .secrets
 *.secret
 api-keys.json
 credentials.json
 
-# ===========================================
 # Terraform
-# ===========================================
-# Local .terraform directories
 .terraform/
 .terraform.lock.hcl
-
-# .tfstate files
 *.tfstate
 *.tfstate.*
-
-# Crash log files
 crash.log
-
-# Ignore any .tfvars files that are generated automatically
 *.tfvars
 *.tfvars.json
-
-# Ignore override files as they are usually used to override resources locally
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
-
-# Include override files you do wish to add to version control using negated pattern
-# !example_override.tf
-
-# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 *tfplan*
 
-# ===========================================
 # Monitoring & Analytics
-# ===========================================
-# Prometheus data
 prometheus_data/
-
-# Grafana data
 grafana_data/
 
-# ===========================================
 # Backup & Archive
-# ===========================================
-# Backup files
 *.backup
 *.bak
 *.old
 backup/
-
-# Archive files
 *.7z
 *.dmg
 *.gz
@@ -284,40 +216,24 @@ backup/
 *.tar
 *.zip
 
-# ===========================================
 # Development & Testing
-# ===========================================
-# Test coverage
 coverage/
 *.cover
 .coverage
 .nyc_output
-
-# JUnit test results
 test-results/
 TEST-*.xml
 
-# ===========================================
 # Miscellaneous
-# ===========================================
-# OS generated files
 .DS_Store?
 ehthumbs.db
 Thumbs.db
-
-# Editor backup files
 *~
 *.bak
 *.swp
 *.swo
-
-# Lock files (should be committed for libraries but ignored for applications)
-# Uncomment if needed:
 # package-lock.json
 # yarn.lock
-
-
-# Terraform
 .terraform/
 *.tfstate
 *.tfstate.*

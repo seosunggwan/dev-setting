@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/s3")
+@RequestMapping("/s3")
 @RequiredArgsConstructor
 public class S3CorsSetupController {
 

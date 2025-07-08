@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/auths")
 public class LogoutController {
 
     private final LogoutService logoutService;

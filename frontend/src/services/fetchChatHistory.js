@@ -37,7 +37,7 @@ const fetchChatHistory = async (roomId, navigate, location) => {
 
     // 채팅 기록 요청 - axios 인스턴스 사용 (인터셉터에서 토큰 만료 처리)
     console.log(`📤 채팅방 ${roomId} 기록 요청 보내는 중...`);
-    const response = await axiosInstance.get(`/chat/history/${roomId}`);
+    const response = await axiosInstance.get(`/api/chat/history/${roomId}`);
 
     const data = response.data;
     console.log(`✅ 채팅방 ${roomId} 기록 조회 성공: ${data.length}개 메시지`);

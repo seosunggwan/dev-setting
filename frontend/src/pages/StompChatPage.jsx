@@ -78,7 +78,7 @@ export default function StompChatPage() {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/health`, {
+      const response = await fetch(`${API_BASE_URL}/api/health`, {
         method: "GET",
         signal: AbortSignal.timeout(5000),
         cache: "no-cache",
@@ -175,7 +175,7 @@ export default function StompChatPage() {
 
     stompClient.current = new Client({
       webSocketFactory: () =>
-        new SockJS(`${API_BASE_URL}/connect`, null, {
+        new SockJS(`${API_BASE_URL}/api/connect`, null, {
           transports: ["websocket"],
           headers: { Authorization: `Bearer ${token}` },
         }),
@@ -327,7 +327,7 @@ export default function StompChatPage() {
     (async () => {
       try {
         console.log("🔄 서버 재연결 시도 중...");
-        const response = await fetch(`${API_BASE_URL}/health`, {
+        const response = await fetch(`${API_BASE_URL}/api/health`, {
           method: "GET",
           signal: AbortSignal.timeout(5000),
           cache: "no-cache",

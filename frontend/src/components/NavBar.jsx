@@ -126,7 +126,7 @@ export default function NavBar() {
               <ListItemText primary="프로필" />
             </ListItem>
 
-            <ListItem button onClick={() => handleNavigate("/member/list")}>
+            <ListItem button onClick={() => handleNavigate("/members/list")}>
               <ListItemIcon>
                 <GroupIcon />
               </ListItemIcon>

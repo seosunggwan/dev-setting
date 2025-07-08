@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/member") // 모든 API의 기본 URL이 `/member`로 시작됨
+@RequestMapping("/members") // 모든 API의 기본 URL이 `/members`로 시작됨
 @Slf4j
 public class MemberController {
     private final MemberService memberService;

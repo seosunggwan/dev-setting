@@ -9,7 +9,7 @@ import { redirectToLogin } from "../utils/auth";
 const fetchMemberList = async (navigate, location) => {
   try {
     // axios 인스턴스 사용 (인터셉터에서 토큰 만료 처리)
-    const response = await axiosInstance.get("/member/list");
+    const response = await axiosInstance.get("/api/members/list");
 
     return response.data;
   } catch (error) {

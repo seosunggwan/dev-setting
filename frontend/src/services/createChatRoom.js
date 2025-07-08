@@ -10,7 +10,7 @@ const createChatRoom = async (otherMemberId, navigate, location) => {
   try {
     // axios 인스턴스 사용 (인터셉터에서 토큰 만료 처리)
     const response = await axiosInstance.post(
-      `/chat/room/private/create`,
+      `/api/chat/room/private/create`,
       null,
       {
         params: { otherMemberId },

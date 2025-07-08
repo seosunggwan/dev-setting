@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/boards/popular")
+@RequestMapping("/boards/popular")
 @RequiredArgsConstructor
 @Slf4j
 public class PopularBoardController {

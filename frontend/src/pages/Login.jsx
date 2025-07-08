@@ -47,7 +47,7 @@ const LoginForm = () => {
       params.append("password", credentials.password);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"}/login`,
+        `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"}/api/login`,
         params,
         {
           withCredentials: true, // 쿠키 포함하여 요청
@@ -182,7 +182,7 @@ const LoginForm = () => {
               <a
                 href={`${
                   import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
-                }/oauth2/authorization/naver`}
+                }/api/oauth2/authorization/naver`}
               >
                 <img
                   src="naver_icon.png"
@@ -195,7 +195,7 @@ const LoginForm = () => {
               <a
                 href={`${
                   import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
-                }/oauth2/authorization/google`}
+                }/api/oauth2/authorization/google`}
               >
                 <img
                   src="google_icon.png"
@@ -208,7 +208,7 @@ const LoginForm = () => {
               <a
                 href={`${
                   import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
-                }/oauth2/authorization/github`}
+                }/api/oauth2/authorization/github`}
               >
                 <img
                   src="github_icon.png"

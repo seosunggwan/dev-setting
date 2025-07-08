@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 //ㄴㄴㄴㄴㄴㄴ
 @RestController
-@RequestMapping("/api/boards")
+@RequestMapping("/boards")
 @RequiredArgsConstructor
 @Slf4j
 public class BoardController {

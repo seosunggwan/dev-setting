@@ -9,7 +9,7 @@ import { redirectToLogin } from "../utils/auth";
 const joinGroupChatRoom = async (roomId, navigate, location) => {
   try {
     // axios 인스턴스 사용 (인터셉터에서 토큰 만료 처리)
-    await axiosInstance.post(`/chat/room/group/${roomId}/join`);
+    await axiosInstance.post(`/api/chat/room/group/${roomId}/join`);
     return true;
   } catch (error) {
     console.error("그룹 채팅방 참여 중 오류 발생:", error);

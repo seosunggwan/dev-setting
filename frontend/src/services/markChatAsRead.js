@@ -16,7 +16,7 @@ const markChatAsRead = async (roomId) => {
     console.log(`📤 채팅방 ${roomId} 읽음 표시 요청 시작`);
 
     // axios 인스턴스 사용 (인터셉터에서 토큰 만료 처리)
-    await axiosInstance.post(`/chat/room/${roomId}/read`);
+    await axiosInstance.post(`/api/chat/room/${roomId}/read`);
 
     console.log(`✅ 채팅방 ${roomId} 읽음 표시 성공`);
     return true;

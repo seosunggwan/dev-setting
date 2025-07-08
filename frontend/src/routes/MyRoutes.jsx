@@ -45,7 +45,7 @@ export default function MyRoutes() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/home" element={<Home />} />
         <Route path="/oauth2-jwt-header" element={<OAuth2Redirect />} />
-        <Route path="/member/list" element={<MemberList />} />
+        <Route path="/members/list" element={<MemberList />} />
         <Route path="/simple/chat" element={<SimpleWebsocket />} />
         <Route path="/chatpage/:roomId" element={<StompChatPage />} />
         <Route path="/groupchatting/list" element={<GroupChattingList />} />
