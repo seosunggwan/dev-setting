@@ -32,6 +32,8 @@ const LoginForm = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   /**
    * 📌 로그인 요청 함수 (axios 버전)
    * - 입력받은 이메일과 비밀번호를 백엔드(`/login` API)로 전송
@@ -47,7 +49,7 @@ const LoginForm = () => {
       params.append("password", credentials.password);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"}/api/login`,
+        `${API_BASE_URL}/api/login`,
         params,
         {
           withCredentials: true, // 쿠키 포함하여 요청
@@ -180,9 +182,7 @@ const LoginForm = () => {
           <Grid container spacing={2} justifyContent="center" sx={{ mt: 2 }}>
             <Grid item>
               <a
-                href={`${
-                  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
-                }/api/oauth2/authorization/naver`}
+                href={`${API_BASE_URL}/api/oauth2/authorization/naver`}
               >
                 <img
                   src="naver_icon.png"
@@ -193,9 +193,7 @@ const LoginForm = () => {
             </Grid>
             <Grid item>
               <a
-                href={`${
-                  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
-                }/api/oauth2/authorization/google`}
+                href={`${API_BASE_URL}/api/oauth2/authorization/google`}
               >
                 <img
                   src="google_icon.png"
@@ -206,9 +204,7 @@ const LoginForm = () => {
             </Grid>
             <Grid item>
               <a
-                href={`${
-                  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
-                }/api/oauth2/authorization/github`}
+                href={`${API_BASE_URL}/api/oauth2/authorization/github`}
               >
                 <img
                   src="github_icon.png"

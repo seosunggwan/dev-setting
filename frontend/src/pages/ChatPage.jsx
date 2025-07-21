@@ -41,7 +41,7 @@ export default function ChatPage() {
   const connectWebSocket = () => {
     setStatus("connecting");
 
-    const socket = new SockJS(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"}/connect`);
+    const socket = new SockJS(`${import.meta.env.VITE_API_BASE_URL}/connect`);
     const client = Stomp.over(socket);
 
     // 디버그 로그 비활성화

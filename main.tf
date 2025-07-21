@@ -290,6 +290,7 @@ output "public_ip" {
 
 output "ssh_command" {
   value = "ssh -i ${var.key_name != null ? var.key_name : "your-key-file"}.pem ubuntu@${aws_eip.app.public_ip}"
+  sensitive = true
 }
 
 output "instance_id" {

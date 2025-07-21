@@ -40,7 +40,7 @@ const JoinForm = () => {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"}/api/join`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/join`,
         credentials,
         {
           withCredentials: true, // 쿠키 포함하여 요청

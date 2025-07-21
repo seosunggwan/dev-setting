@@ -11,6 +11,8 @@ const Logout = () => {
   const navigate = useNavigate();
   const { logout } = useLogin();
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   /**
    * 📌 로그아웃 요청 함수
    * - 백엔드로 POST 요청을 보내서 로그아웃 처리
@@ -21,9 +23,7 @@ const Logout = () => {
       console.log("로그아웃 요청 시작");
 
       const response = await fetch(
-        `${
-          import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
-        }/auths/logout`,
+        `${API_BASE_URL}/auths/logout`,
         {
           method: "POST",
           credentials: "include",
