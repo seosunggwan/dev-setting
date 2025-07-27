@@ -39,6 +39,9 @@ public class S3Config {
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucketName;
     
+    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173}")
+    private String corsAllowedOrigins;
+    
     // 생성된 amazonS3 빈을 관리하기 위한 필드
     private AmazonS3 amazonS3Client;
 
@@ -87,7 +90,7 @@ public class S3Config {
                         CORSRule.AllowedMethods.DELETE, 
                         CORSRule.AllowedMethods.HEAD
                     ))
-                    .withAllowedOrigins(Arrays.asList("http://43.202.50.50:5173", "http://localhost:5173", "https://your-production-domain.com"))
+                    .withAllowedOrigins(Arrays.asList(corsAllowedOrigins.split(",")))
                     .withAllowedHeaders(Arrays.asList("*"))
                     .withMaxAgeSeconds(3000)
                     .withExposedHeaders(Arrays.asList("ETag", "x-amz-meta-custom-header"))
