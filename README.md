@@ -83,7 +83,3 @@
 - Redis 분산락 및 TTL Jitter로 캐시 동시 만료 방지
 
 ---
-
-## 📦 프로젝트 구조 및 링크
-
-- GitHub Repo: [https://github.com/seosunggwan/demo3/tree/webrtc](https://github.com/seosunggwan/demo3/tree/webrtc)
