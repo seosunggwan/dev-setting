@@ -30,6 +30,9 @@ public class S3CorsSetupController {
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucketName;
     
+    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173}")
+    private String corsAllowedOrigins;
+    
     /**
      * S3 버킷의 현재 CORS 설정을 확인
      * @return 현재 CORS 설정 정보
@@ -87,13 +90,7 @@ public class S3CorsSetupController {
                         CORSRule.AllowedMethods.DELETE, 
                         CORSRule.AllowedMethods.HEAD
                     ))
-                    .withAllowedOrigins(Arrays.asList(
-                        "http://localhost:5173", 
-                        "http://localhost:3000",
-                        "http://localhost:8080",
-                        "https://your-production-domain.com",
-                        "*" // 모든 도메인 허용 (개발 환경에서만 사용)
-                    ))
+                    .withAllowedOrigins(Arrays.asList(corsAllowedOrigins.split(",")))
                     .withAllowedHeaders(Arrays.asList("*"))
                     .withMaxAgeSeconds(3600)
                     .withExposedHeaders(Arrays.asList(

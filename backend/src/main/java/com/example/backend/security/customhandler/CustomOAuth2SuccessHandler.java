@@ -17,6 +17,7 @@ import com.example.backend.security.entity.UserEntity;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.logging.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * OAuth2 로그인 성공 후 JWT 발급
@@ -36,6 +37,16 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
     private final JWTUtil jwtUtil; // JWT 생성 및 검증 유틸 클래스
     private final RefreshTokenService refreshTokenService; // Refresh 토큰 관리 서비스
     private final OAuthUserEntityToUserEntityService oAuthUserService; // UserEntity 동기화 서비스
+    
+    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173}")
+    private String corsAllowedOrigins;
+    
+    /**
+     * CORS_ALLOWED_ORIGINS에서 첫 번째 도메인을 추출하여 리다이렉트 URL로 사용
+     */
+    private String getFrontendBaseUrl() {
+        return corsAllowedOrigins.split(",")[0].trim();
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -85,6 +96,6 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             encodedEmail = URLEncoder.encode(username, "UTF-8");
         }
         
-        response.sendRedirect("http://localhost:5173/oauth2-jwt-header?name=" + encodedName + "&email=" + encodedEmail);
+        response.sendRedirect(getFrontendBaseUrl() + "/oauth2-jwt-header?name=" + encodedName + "&email=" + encodedEmail);
     }
 }

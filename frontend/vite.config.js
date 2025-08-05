@@ -29,7 +29,7 @@ export default defineConfig({
     force: true, // 의존성 최적화 강제 실행
     proxy: {
       "/api": {
-        target: "http://app:8080", // Docker 서비스 이름 사용
+        target: process.env.VITE_PROXY_TARGET || "http://localhost:8080", // 환경변수 또는 기본값
         changeOrigin: true,
         secure: false,
         ws: true,
