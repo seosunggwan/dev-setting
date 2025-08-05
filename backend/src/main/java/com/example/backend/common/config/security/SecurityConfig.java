@@ -93,7 +93,10 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.setAllowedOrigins(Arrays.asList(corsAllowedOrigins.split(",")));
+                    String origins = corsAllowedOrigins != null && !corsAllowedOrigins.trim().isEmpty() 
+                        ? corsAllowedOrigins 
+                        : "http://localhost:5173";
+                    configuration.setAllowedOrigins(Arrays.asList(origins.split(",")));
                     configuration.setAllowedMethods(Collections.singletonList("*"));
                     configuration.setAllowCredentials(true);
                     configuration.setAllowedHeaders(Collections.singletonList("*"));
@@ -108,6 +111,8 @@ public class SecurityConfig {
                         "/login", 
                         "/join",
                         "/oauth2-jwt-header", 
+                        "/login/oauth2/code/**", // OAuth2 콜백 경로 추가
+                        "/api/login/oauth2/code/**", // API context-path 포함 OAuth2 콜백 경로
                         "/connect/**",
                         "/topic/**",
                         "/app/**",

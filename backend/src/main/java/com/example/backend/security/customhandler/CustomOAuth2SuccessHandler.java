@@ -45,6 +45,10 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
      * CORS_ALLOWED_ORIGINS에서 첫 번째 도메인을 추출하여 리다이렉트 URL로 사용
      */
     private String getFrontendBaseUrl() {
+        if (corsAllowedOrigins == null || corsAllowedOrigins.trim().isEmpty()) {
+            logger.warning("CORS_ALLOWED_ORIGINS가 설정되지 않았습니다. 기본값 사용: http://localhost:5173");
+            return "http://localhost:5173";
+        }
         return corsAllowedOrigins.split(",")[0].trim();
     }
 

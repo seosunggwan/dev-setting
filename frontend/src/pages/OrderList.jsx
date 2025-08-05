@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../services/axiosInstance";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLogin } from "../contexts/AuthContext";
 
@@ -20,12 +20,14 @@ const OrderList = () => {
     hasPrevious: false,
   });
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isLoggedIn, getAccessToken, logout } = useLogin();
+  const { isLoggedIn, logout } = useLogin();
   const navigate = useNavigate();
 
-  // URL에서 페이지 파라미터 가져오기
+  // URL에서 파라미터 가져오기
   const page = parseInt(searchParams.get("page") || "0");
   const size = parseInt(searchParams.get("size") || "10");
+  const urlMemberName = searchParams.get("memberName") || "";
+  const urlOrderStatus = searchParams.get("orderStatus") || "";
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -34,56 +36,46 @@ const OrderList = () => {
       return;
     }
 
-    // URL의 페이지 정보로 주문 목록 조회
-    fetchOrders(page, size);
-  }, [isLoggedIn, navigate, getAccessToken, page, size]);
+    // URL 파라미터로부터 검색 조건 업데이트
+    setOrderSearch({
+      memberName: urlMemberName,
+      orderStatus: urlOrderStatus || null
+    });
 
-  const fetchOrders = async (page, size) => {
+    // URL의 페이지 정보로 주문 목록 조회
+    fetchOrders(page, size, urlMemberName, urlOrderStatus);
+  }, [isLoggedIn, navigate, page, size, urlMemberName, urlOrderStatus]);
+
+  const fetchOrders = async (page, size, memberName = "", orderStatus = "") => {
     try {
       setLoading(true);
-      const token = getAccessToken();
-
-      if (!token) {
-        console.error("토큰이 없습니다.");
-        alert("로그인이 필요합니다.");
-        logout(); // 토큰이 없으면 로그아웃 처리
-        navigate("/login", { state: "/orders" });
-        return;
-      }
-
-      console.log("사용 토큰:", token);
+      console.log("📡 fetchOrders 호출됨!");
       console.log("검색 조건:", {
-        memberName: orderSearch.memberName || "",
-        orderStatus: orderSearch.orderStatus || "",
+        memberName: memberName || "",
+        orderStatus: orderStatus || "",
         page: page,
         size: size,
       });
 
       // 페이지네이션 API 엔드포인트 사용
-      let url = "/api/orders/search/page";
+      let url = "/orders/search/page";
       const params = {
         page: page,
         size: size,
       };
 
       // 빈 문자열이 아닌 경우에만 파라미터로 추가
-      if (orderSearch.memberName && orderSearch.memberName.trim() !== "") {
-        params.memberName = orderSearch.memberName.trim();
+      if (memberName && memberName.trim() !== "") {
+        params.memberName = memberName.trim();
       }
 
-      if (orderSearch.orderStatus) {
-        params.orderStatus = orderSearch.orderStatus;
+      if (orderStatus) {
+        params.orderStatus = orderStatus;
       }
 
       // 검색 API 호출
-      const response = await axios.get(url, {
+      const response = await axiosInstance.get(url, {
         params: params,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        // 타임아웃 설정 추가
-        timeout: 10000,
       });
 
       console.log("응답 데이터:", response.data);
@@ -126,8 +118,26 @@ const OrderList = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // 검색 시 첫 페이지로 이동
-    setSearchParams({ page: 0, size: pageInfo.size });
+    console.log("🔍 검색 버튼 클릭됨!");
+    console.log("검색 조건:", orderSearch);
+    
+    // 검색 시 첫 페이지로 이동 (검색 조건 포함)
+    const params = { 
+      page: 0, 
+      size: pageInfo.size
+    };
+    
+    // 검색 조건이 있으면 URL 파라미터에 추가
+    if (orderSearch.memberName && orderSearch.memberName.trim() !== "") {
+      params.memberName = orderSearch.memberName.trim();
+    }
+    
+    if (orderSearch.orderStatus) {
+      params.orderStatus = orderSearch.orderStatus;
+    }
+    
+    console.log("URL 파라미터:", params);
+    setSearchParams(params);
   };
 
   const handlePageChange = (newPage) => {
@@ -232,28 +242,10 @@ const OrderList = () => {
 
   const handleCancelOrder = async (orderId) => {
     try {
-      const token = getAccessToken();
-
-      if (!token) {
-        console.error("토큰이 없습니다.");
-        alert("로그인이 필요합니다.");
-        navigate("/login", { state: "/orders" });
-        return;
-      }
-
-      await axios.post(
-        `/api/orders/${orderId}/cancel`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await axiosInstance.post(`/orders/${orderId}/cancel`, {});
 
       alert("주문이 취소되었습니다.");
-      fetchOrders(page, size);
+      fetchOrders(page, size, urlMemberName, urlOrderStatus);
     } catch (error) {
       console.error("주문 취소에 실패했습니다:", error);
       if (error.response?.status === 401) {

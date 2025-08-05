@@ -3,7 +3,16 @@ import fetchReissue from "./fetchReissue";
 
 // 환경에 따른 API 베이스 URL 설정
 const getBaseURL = () => {
+  // 환경변수가 있으면 사용, 없으면 개발 환경용 프록시 사용
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+  if (apiBaseUrl) {
+    return apiBaseUrl + '/api';  // 환경변수에 /api 추가
+  }
+  
   // 개발 환경에서는 Vite 프록시를 사용하도록 상대 경로 설정
+  if (typeof window !== 'undefined' && window.location.origin) {
+    return `${window.location.origin}/api`;
+  }
   return "/api";
 };
 
