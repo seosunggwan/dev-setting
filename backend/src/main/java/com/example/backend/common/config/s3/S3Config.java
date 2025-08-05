@@ -87,11 +87,7 @@ public class S3Config {
                         CORSRule.AllowedMethods.DELETE, 
                         CORSRule.AllowedMethods.HEAD
                     ))
-<<<<<<< HEAD
                     .withAllowedOrigins(Arrays.asList("http://localhost:5173", "https://your-production-domain.com"))
-=======
-                    .withAllowedOrigins(Arrays.asList("http://43.202.50.50:5173", "http://localhost:5173", "https://your-production-domain.com"))
->>>>>>> parent of 132b4c3 (하드 코딩된 URL, .env 분리)
                     .withAllowedHeaders(Arrays.asList("*"))
                     .withMaxAgeSeconds(3000)
                     .withExposedHeaders(Arrays.asList("ETag", "x-amz-meta-custom-header"))

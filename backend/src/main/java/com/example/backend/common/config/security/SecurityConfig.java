@@ -89,11 +89,7 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
-<<<<<<< HEAD
                     configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
-=======
-                    configuration.setAllowedOrigins(Arrays.asList("http://43.202.50.50:5173", "http://localhost:5173"));
->>>>>>> parent of 132b4c3 (하드 코딩된 URL, .env 분리)
                     configuration.setAllowedMethods(Collections.singletonList("*"));
                     configuration.setAllowCredentials(true);
                     configuration.setAllowedHeaders(Collections.singletonList("*"));
