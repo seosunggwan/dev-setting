@@ -114,8 +114,6 @@ public class SecurityConfig {
                         "/ws/**",
                         "/publish/**",
                         "/health",
-                        "/healthservertest",
-                        "/boardservertest",
                         "/api/items/image",
                         "/api/auth/refresh",
                         TokenConstants.TOKEN_REISSUE_PATH,

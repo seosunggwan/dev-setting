@@ -248,7 +248,7 @@ export default function NavBar() {
               fontWeight: "bold",
             }}
           >
-            DANA3
+            채팅 애플리케이션
           </Typography>
 
           {/* 데스크톱 메뉴 */}
