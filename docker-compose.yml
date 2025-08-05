@@ -33,7 +33,8 @@ services:
     environment:
       # Database Configuration
       RDS_ENDPOINT: db
-      RDS_PASSWORD: ${RDS_PASSWORD:-portfolio1234}
+      RDS_USERNAME: portfolio_user
+      RDS_PASSWORD: portfolio1234
       # JWT Configuration
       JWT_SECRET: ${JWT_SECRET:-your-256-bit-secret-your-256-bit-secret-your-256-bit-secret-your-256-bit-secret}
       # OAuth2 Configuration

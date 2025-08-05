@@ -48,12 +48,20 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
 	// 테스트 관련 라이브러리
-	testImplementation 'org.springframework.boot:spring-boot-starter-test' // 기본 테스트 지원
+	// Spring Boot Starter Test 에서 vintage 엔진 제외
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	testImplementation 'org.springframework.security:spring-security-test' // Security 관련 테스트 지원
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 실행기
+	// ★ JUnit5 (Jupiter) API & Engine 추가
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 
 	// H2 데이터베이스 (테스트 전용)
 	testImplementation 'com.h2database:h2:2.2.224'
+
+	// 임베디드 Redis (테스트 전용) - slf4j-simple 제외
+	testImplementation('it.ozimov:embedded-redis:0.7.3') {
+		exclude group: 'org.slf4j', module: 'slf4j-simple'
+	}
 
 	// TestContainers 의존성 - 실제 DB 환경으로 테스트 (선택사항)
 	testImplementation 'org.testcontainers:junit-jupiter:1.19.3'
@@ -75,6 +83,6 @@ dependencies {
 
 }
 
-tasks.named('test') {
+test {
 	useJUnitPlatform()
 }

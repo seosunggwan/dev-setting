@@ -1,12 +1,17 @@
 package com.example.backend;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
 /**
  * 메인 애플리케이션 테스트 클래스
  * - H2 인메모리 데이터베이스 사용
  * - 테스트 프로파일 활성화
- * - Spring Boot 컨텍스트 로딩 테스트ㄴㄴ
+ * - Spring Boot 컨텍스트 로딩 테스트
  */
+@SpringBootTest
+@ActiveProfiles("test")
 class BackendApplicationTests {
 
 	@Test
@@ -24,5 +29,4 @@ class BackendApplicationTests {
 		// 추가적인 컨텍스트 검증 테스트
 		// 실제 프로젝트에서는 여기에 더 구체적인 테스트 로직을 추가할 수 있습니다
 	}
-
 }

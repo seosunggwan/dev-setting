@@ -1,0 +1,50 @@
+name: Deploy to S3 and CloudFront
+
+on:
+  push:
+    branches: [ main ]  # main 브랜치에 푸시될 때 실행
+  pull_request:
+    branches: [ main ]  # main 브랜치로의 PR에 대해서도 빌드 테스트
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build project
+      run: npm run build
+      env:
+        # 필요한 환경변수들을 여기에 추가
+        VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+        # 다른 환경변수들도 필요에 따라 추가
+      
+    # main 브랜치에 푸시될 때만 배포 수행
+    - name: Configure AWS credentials
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+        
+    - name: Deploy to S3
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_NAME }} --delete --exact-timestamps
+        
+    - name: Invalidate CloudFront
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*" 
