@@ -33,7 +33,7 @@ import {
 
 const OrderForm = () => {
   const navigate = useNavigate();
-  const { isLoggedIn, getAccessToken } = useLogin();
+  const { isLoggedIn, getAccessToken, isAdmin, getUserRole } = useLogin();
 
   const [members, setMembers] = useState([]);
   const [items, setItems] = useState([]);
@@ -71,8 +71,16 @@ const OrderForm = () => {
         console.log("회원 데이터:", res.data.members);
         console.log("상품 데이터:", res.data.items);
 
-        setMembers(Array.isArray(res.data.members) ? res.data.members : []);
-        setItems(Array.isArray(res.data.items) ? res.data.items : []);
+        const membersData = Array.isArray(res.data.members) ? res.data.members : [];
+        const itemsData = Array.isArray(res.data.items) ? res.data.items : [];
+        
+        setMembers(membersData);
+        setItems(itemsData);
+        
+        // USER 역할인 경우 자동으로 첫 번째(본인) 회원 선택
+        if (!isAdmin() && membersData.length > 0) {
+          setSelectedMember(membersData[0].id);
+        }
       } catch (e) {
         console.error("데이터를 불러오는데 실패:", e);
         if (e.response?.status === 401) {
@@ -177,6 +185,23 @@ const OrderForm = () => {
 
         <Divider sx={{ mb: 4 }} />
 
+        {/* 사용자 역할 표시 */}
+        <Alert 
+          severity={isAdmin() ? "warning" : "info"} 
+          sx={{ mb: 3, borderRadius: 2 }}
+          icon={isAdmin() ? "🔧" : "👤"}
+        >
+          {isAdmin() ? (
+            <Typography variant="body2">
+              <strong>관리자 모드:</strong> 모든 회원을 대상으로 주문을 생성할 수 있습니다.
+            </Typography>
+          ) : (
+            <Typography variant="body2">
+              <strong>사용자 모드:</strong> 본인 계정으로만 주문이 생성됩니다.
+            </Typography>
+          )}
+        </Alert>
+
         {/* 에러 메시지 */}
         {error && (
           <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
@@ -193,33 +218,67 @@ const OrderForm = () => {
                 <CardContent>
                   <Box display="flex" alignItems="center" mb={2}>
                     <Person color="primary" sx={{ mr: 1 }} />
-                    <Typography variant="h6">회원 선택</Typography>
+                    <Typography variant="h6">
+                      {isAdmin() ? "회원 선택" : "주문자 정보"}
+                    </Typography>
                   </Box>
-                  <FormControl fullWidth required>
-                    <InputLabel>주문할 회원을 선택하세요</InputLabel>
-                    <Select
-                      value={selectedMember}
-                      label="주문할 회원을 선택하세요"
-                      onChange={(e) => setSelectedMember(e.target.value)}
-                    >
-                      {members.map((member) => {
-                        // 안전한 이름 추출
-                        const memberName = member.username || member.name || member.email || '사용자';
-                        const initials = memberName && memberName.length > 0 ? memberName.charAt(0).toUpperCase() : 'U';
-                        
-                        return (
-                          <MenuItem key={member.id} value={member.id}>
-                            <Box display="flex" alignItems="center">
-                              <Avatar sx={{ width: 24, height: 24, mr: 1, fontSize: 12 }}>
-                                {initials}
-                              </Avatar>
-                              {memberName}
-                            </Box>
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
+                  
+                  {isAdmin() ? (
+                    // 관리자: 회원 선택 드롭다운
+                    <FormControl fullWidth required>
+                      <InputLabel>주문할 회원을 선택하세요</InputLabel>
+                      <Select
+                        value={selectedMember}
+                        label="주문할 회원을 선택하세요"
+                        onChange={(e) => setSelectedMember(e.target.value)}
+                      >
+                        {members.map((member) => {
+                          // 안전한 이름 추출
+                          const memberName = member.username || member.name || member.email || '사용자';
+                          const initials = memberName && memberName.length > 0 ? memberName.charAt(0).toUpperCase() : 'U';
+                          
+                          return (
+                            <MenuItem key={member.id} value={member.id}>
+                              <Box display="flex" alignItems="center">
+                                <Avatar sx={{ width: 24, height: 24, mr: 1, fontSize: 12 }}>
+                                  {initials}
+                                </Avatar>
+                                {memberName}
+                              </Box>
+                            </MenuItem>
+                          );
+                        })}
+                      </Select>
+                    </FormControl>
+                  ) : (
+                    // 일반 사용자: 본인 정보 표시 (읽기 전용)
+                    <Box>
+                      {members.length > 0 && selectedMember && (
+                        <Box 
+                          sx={{ 
+                            p: 2, 
+                            border: '1px solid #e0e0e0', 
+                            borderRadius: 1, 
+                            backgroundColor: '#f9f9f9',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <Avatar sx={{ width: 32, height: 32, mr: 2 }}>
+                            {(members.find(m => m.id === selectedMember)?.username || '사용자').charAt(0).toUpperCase()}
+                          </Avatar>
+                          <Box>
+                            <Typography variant="body1" fontWeight="medium">
+                              {members.find(m => m.id === selectedMember)?.username || '사용자'}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              본인 계정으로 주문됩니다
+                            </Typography>
+                          </Box>
+                        </Box>
+                      )}
+                    </Box>
+                  )}
                 </CardContent>
               </Card>
             </Grid>

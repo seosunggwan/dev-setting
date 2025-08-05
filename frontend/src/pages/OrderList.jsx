@@ -20,7 +20,7 @@ const OrderList = () => {
     hasPrevious: false,
   });
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isLoggedIn, logout } = useLogin();
+  const { isLoggedIn, logout, isAdmin, getUserRole } = useLogin();
   const navigate = useNavigate();
 
   // URL에서 파라미터 가져오기
@@ -343,6 +343,19 @@ const OrderList = () => {
           border: "1px solid #eee",
         }}
       >
+        {/* 사용자 역할 표시 */}
+        <div style={{ marginBottom: "20px", fontSize: "14px", color: "#666" }}>
+          {isAdmin() ? (
+            <span style={{ color: "#ef4444", fontWeight: "bold" }}>
+              🔧 관리자 모드: 모든 사용자의 주문을 조회할 수 있습니다
+            </span>
+          ) : (
+            <span style={{ color: "#10b981", fontWeight: "bold" }}>
+              👤 사용자 모드: 본인의 주문만 조회됩니다
+            </span>
+          )}
+        </div>
+        
         <div
           style={{
             display: "flex",
@@ -351,34 +364,38 @@ const OrderList = () => {
             alignItems: "flex-end",
           }}
         >
-          <div style={{ flex: "1", minWidth: "200px" }}>
-            <label
-              style={{
-                display: "block",
-                marginBottom: "6px",
-                fontWeight: "500",
-              }}
-            >
-              회원명
-            </label>
-            <input
-              type="text"
-              value={orderSearch.memberName}
-              onChange={(e) =>
-                setOrderSearch({
-                  ...orderSearch,
-                  memberName: e.target.value,
-                })
-              }
-              placeholder="회원 이름 입력"
-              style={{
-                width: "100%",
-                padding: "8px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-              }}
-            />
-          </div>
+          {/* 관리자만 회원명 검색 필드 표시 */}
+          {isAdmin() && (
+            <div style={{ flex: "1", minWidth: "200px" }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "6px",
+                  fontWeight: "500",
+                }}
+              >
+                회원명
+              </label>
+              <input
+                type="text"
+                value={orderSearch.memberName}
+                onChange={(e) =>
+                  setOrderSearch({
+                    ...orderSearch,
+                    memberName: e.target.value,
+                  })
+                }
+                placeholder="회원 이름 입력"
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #ddd",
+                  borderRadius: "4px",
+                }}
+              />
+            </div>
+          )}
+          
           <div style={{ flex: "1", minWidth: "200px" }}>
             <label
               style={{

@@ -45,6 +45,16 @@ export default function AuthProvider({ children }) {
     return localStorage.getItem("refresh_token");
   };
 
+  // 사용자 역할을 가져오는 함수
+  const getUserRole = () => {
+    return localStorage.getItem("role");
+  };
+
+  // 관리자인지 확인하는 함수
+  const isAdmin = () => {
+    return getUserRole() === "ADMIN";
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -56,6 +66,8 @@ export default function AuthProvider({ children }) {
         logout,
         getAccessToken,
         getRefreshToken,
+        getUserRole,
+        isAdmin,
       }}
     >
       {children}

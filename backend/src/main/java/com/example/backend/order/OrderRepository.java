@@ -242,5 +242,132 @@ public class OrderRepository {
         // 이 메서드는 보관용으로 유지하고 실제로는 findAllByString 메서드를 사용합니다.
         return findAllByString(orderSearch);
     }
+
+    /**
+     * 특정 사용자의 주문 목록 조회 (회원과 주문 상품 정보를 함께 조회)
+     */
+    public List<Order> findAllByMemberWithMemberAndItems(String memberEmail) {
+        return em.createQuery(
+                "select distinct o from Order o " +
+                        "join fetch o.member m " +
+                        "join fetch o.delivery d " +
+                        "join fetch o.orderItems oi " +
+                        "join fetch oi.item i " +
+                        "where m.email = :memberEmail " +
+                        "order by o.orderDate desc", Order.class)
+                .setParameter("memberEmail", memberEmail)
+                .getResultList();
+    }
+
+    /**
+     * 특정 사용자의 주문 목록 조회 (페이지네이션)
+     */
+    public List<Order> findAllByMemberWithPaging(String memberEmail, int offset, int limit) {
+        return em.createQuery(
+                "select distinct o from Order o " +
+                        "join fetch o.member m " +
+                        "join fetch o.delivery d " +
+                        "join fetch o.orderItems oi " +
+                        "join fetch oi.item i " +
+                        "where m.email = :memberEmail " +
+                        "order by o.orderDate desc", Order.class)
+                .setParameter("memberEmail", memberEmail)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    /**
+     * 특정 사용자의 주문 개수 조회
+     */
+    public long countByMember(String memberEmail) {
+        return em.createQuery(
+                "select count(distinct o) from Order o " +
+                        "join o.member m " +
+                        "where m.email = :memberEmail", Long.class)
+                .setParameter("memberEmail", memberEmail)
+                .getSingleResult();
+    }
+
+    /**
+     * 특정 사용자의 주문 검색 (검색 조건 포함)
+     */
+    public List<Order> findByMemberAndSearch(String memberEmail, OrderSearch orderSearch) {
+        String jpql = "select distinct o from Order o " +
+                "join fetch o.member m " +
+                "join fetch o.delivery d " +
+                "join fetch o.orderItems oi " +
+                "join fetch oi.item i " +
+                "where m.email = :memberEmail";
+
+        // 주문 상태 조건 추가
+        if (orderSearch.getOrderStatus() != null) {
+            jpql += " and o.status = :status";
+        }
+
+        jpql += " order by o.orderDate desc";
+
+        TypedQuery<Order> query = em.createQuery(jpql, Order.class);
+        query.setParameter("memberEmail", memberEmail);
+
+        if (orderSearch.getOrderStatus() != null) {
+            query.setParameter("status", orderSearch.getOrderStatus());
+        }
+
+        return query.getResultList();
+    }
+
+    /**
+     * 특정 사용자의 주문 검색 (페이지네이션)
+     */
+    public List<Order> findByMemberAndSearchWithPaging(String memberEmail, OrderSearch orderSearch, int offset, int limit) {
+        String jpql = "select distinct o from Order o " +
+                "join fetch o.member m " +
+                "join fetch o.delivery d " +
+                "join fetch o.orderItems oi " +
+                "join fetch oi.item i " +
+                "where m.email = :memberEmail";
+
+        // 주문 상태 조건 추가
+        if (orderSearch.getOrderStatus() != null) {
+            jpql += " and o.status = :status";
+        }
+
+        jpql += " order by o.orderDate desc";
+
+        TypedQuery<Order> query = em.createQuery(jpql, Order.class);
+        query.setParameter("memberEmail", memberEmail);
+
+        if (orderSearch.getOrderStatus() != null) {
+            query.setParameter("status", orderSearch.getOrderStatus());
+        }
+
+        return query.setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    /**
+     * 특정 사용자의 주문 검색 개수
+     */
+    public long countByMemberAndSearch(String memberEmail, OrderSearch orderSearch) {
+        String jpql = "select count(distinct o) from Order o " +
+                "join o.member m " +
+                "where m.email = :memberEmail";
+
+        // 주문 상태 조건 추가
+        if (orderSearch.getOrderStatus() != null) {
+            jpql += " and o.status = :status";
+        }
+
+        TypedQuery<Long> query = em.createQuery(jpql, Long.class);
+        query.setParameter("memberEmail", memberEmail);
+
+        if (orderSearch.getOrderStatus() != null) {
+            query.setParameter("status", orderSearch.getOrderStatus());
+        }
+
+        return query.getSingleResult();
+    }
 }
 

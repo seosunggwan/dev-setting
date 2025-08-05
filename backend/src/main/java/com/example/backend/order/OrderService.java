@@ -4,6 +4,8 @@ import com.example.backend.delivery.Delivery;
 import com.example.backend.delivery.DeliveryStatus;
 import com.example.backend.item.ItemRepository;
 import com.example.backend.item.domain.Item;
+import com.example.backend.order.dto.PagedOrdersDto;
+import com.example.backend.security.entity.Role;
 import com.example.backend.security.entity.UserEntity;
 import com.example.backend.security.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -116,5 +118,92 @@ public class OrderService {
      */
     public long countOrders(OrderSearch orderSearch) {
         return orderRepository.countBySearch(orderSearch);
+    }
+
+    /**
+     * 사용자 역할에 따른 주문 목록 조회
+     * @param userRole 사용자 역할 (ADMIN/USER)
+     * @param userEmail 현재 사용자 이메일 (USER 역할일 때 본인 주문만 조회)
+     * @return 권한에 따른 주문 목록
+     */
+    public List<Order> findOrdersByRole(Role userRole, String userEmail) {
+        if (userRole == Role.ADMIN) {
+            // 관리자는 모든 주문 조회
+            return orderRepository.findAllWithMemberAndItems();
+        } else {
+            // 일반 사용자는 본인 주문만 조회
+            return orderRepository.findAllByMemberWithMemberAndItems(userEmail);
+        }
+    }
+
+    /**
+     * 사용자 역할에 따른 주문 검색
+     * @param userRole 사용자 역할
+     * @param userEmail 현재 사용자 이메일
+     * @param orderSearch 검색 조건
+     * @return 권한에 따른 검색 결과
+     */
+    public List<Order> findOrdersByRoleAndSearch(Role userRole, String userEmail, OrderSearch orderSearch) {
+        if (userRole == Role.ADMIN) {
+            // 관리자는 모든 주문에서 검색
+            return orderRepository.findAllByString(orderSearch);
+        } else {
+            // 일반 사용자는 본인 주문에서만 검색
+            return orderRepository.findByMemberAndSearch(userEmail, orderSearch);
+        }
+    }
+
+    /**
+     * 사용자 역할에 따른 주문 페이지네이션 조회
+     * @param userRole 사용자 역할
+     * @param userEmail 현재 사용자 이메일
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 권한에 따른 페이지네이션 결과
+     */
+    public PagedOrdersDto findOrdersByRoleWithPaging(Role userRole, String userEmail, int page, int size) {
+        int offset = page * size;
+        List<Order> orders;
+        long total;
+
+        if (userRole == Role.ADMIN) {
+            // 관리자는 모든 주문 조회
+            orders = orderRepository.findAllWithPaging(offset, size);
+            total = orderRepository.count();
+        } else {
+            // 일반 사용자는 본인 주문만 조회
+            orders = orderRepository.findAllByMemberWithPaging(userEmail, offset, size);
+            total = orderRepository.countByMember(userEmail);
+        }
+
+        return new PagedOrdersDto(orders, page, size, total);
+    }
+
+    /**
+     * 사용자 역할에 따른 주문 검색 (페이지네이션)
+     * @param userRole 사용자 역할
+     * @param userEmail 현재 사용자 이메일
+     * @param orderSearch 검색 조건
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 권한에 따른 검색 결과 (페이지네이션)
+     */
+    public PagedOrdersDto findOrdersByRoleAndSearchWithPaging(
+            Role userRole, String userEmail, OrderSearch orderSearch, int page, int size) {
+        int offset = page * size;
+        List<Order> orders;
+        long total;
+
+        if (userRole == Role.ADMIN) {
+            // 관리자는 모든 주문에서 검색
+            orders = orderRepository.findAllByStringWithPaging(orderSearch, offset, size);
+            total = orderRepository.countBySearch(orderSearch);
+        } else {
+            // 일반 사용자는 본인 주문에서만 검색
+            orders = orderRepository.findByMemberAndSearchWithPaging(userEmail, orderSearch, offset, size);
+            total = orderRepository.countByMemberAndSearch(userEmail, orderSearch);
+        }
+
+        return new PagedOrdersDto(orders, page, size, total);
     }
 }
