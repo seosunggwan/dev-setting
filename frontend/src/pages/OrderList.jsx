@@ -477,6 +477,15 @@ const OrderList = () => {
                   fontWeight: "500",
                 }}
               >
+                상품 정보
+              </th>
+              <th
+                style={{
+                  padding: "10px",
+                  textAlign: "left",
+                  fontWeight: "500",
+                }}
+              >
                 주문일시
               </th>
               <th
@@ -523,6 +532,38 @@ const OrderList = () => {
                     >
                       {order.orderStatus === "ORDER" ? "주문" : "취소"}
                     </span>
+                  </td>
+                  <td style={{ padding: "12px 10px" }}>
+                    {order.orderItems.map((item, index) => (
+                      <div key={index} style={{ marginBottom: index === order.orderItems.length - 1 ? "0" : "4px" }}>
+                        <div style={{ fontSize: "14px", fontWeight: "500" }}>
+                          {item.itemName}
+                        </div>
+                        <div style={{ fontSize: "12px", color: "#666" }}>
+                          <span
+                            style={{
+                              display: "inline-block",
+                              padding: "1px 6px",
+                              borderRadius: "8px",
+                              fontSize: "11px",
+                              backgroundColor: 
+                                item.itemType === "BOOK" ? "#dbeafe" :
+                                item.itemType === "ALBUM" ? "#fed7d7" :
+                                item.itemType === "MOVIE" ? "#d1fae5" : "#f3f4f6",
+                              color:
+                                item.itemType === "BOOK" ? "#1e40af" :
+                                item.itemType === "ALBUM" ? "#991b1b" :
+                                item.itemType === "MOVIE" ? "#065f46" : "#374151",
+                            }}
+                          >
+                            {item.itemTypeDisplay || "기타"}
+                          </span>
+                          <span style={{ marginLeft: "6px" }}>
+                            {item.count}개 × {item.orderPrice.toLocaleString()}원
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </td>
                   <td style={{ padding: "12px 10px" }}>
                     {formatDate(order.orderDate)}

@@ -12,8 +12,16 @@ const ItemForm = () => {
     name: "",
     price: 0,
     stockQuantity: 0,
+    itemType: "BOOK", // 기본값: Book
+    // Book 필드
     author: "",
     isbn: "",
+    // Album 필드
+    artist: "",
+    etc: "",
+    // Movie 필드
+    director: "",
+    actor: "",
     imageUrl: "",
   });
   const [loading, setLoading] = useState(false);
@@ -65,6 +73,125 @@ const ItemForm = () => {
       ...prev,
       imageUrl,
     }));
+  };
+
+  // 타입별 필드 렌더링 함수
+  const renderTypeSpecificFields = () => {
+    const fieldStyle = {
+      width: "100%",
+      padding: "10px",
+      fontSize: "16px",
+      border: "1px solid #ddd",
+      borderRadius: "4px",
+    };
+
+    const labelStyle = {
+      display: "block",
+      marginBottom: "5px",
+      fontSize: "14px",
+      fontWeight: "bold",
+    };
+
+    switch (formData.itemType) {
+      case "BOOK":
+        return (
+          <div>
+            <div style={{ marginBottom: "20px" }}>
+              <label htmlFor="author" style={labelStyle}>
+                저자
+              </label>
+              <input
+                type="text"
+                id="author"
+                name="author"
+                value={formData.author || ""}
+                onChange={handleChange}
+                style={fieldStyle}
+              />
+            </div>
+            <div style={{ marginBottom: "20px" }}>
+              <label htmlFor="isbn" style={labelStyle}>
+                ISBN
+              </label>
+              <input
+                type="text"
+                id="isbn"
+                name="isbn"
+                value={formData.isbn || ""}
+                onChange={handleChange}
+                style={fieldStyle}
+              />
+            </div>
+          </div>
+        );
+
+      case "ALBUM":
+        return (
+          <div>
+            <div style={{ marginBottom: "20px" }}>
+              <label htmlFor="artist" style={labelStyle}>
+                아티스트
+              </label>
+              <input
+                type="text"
+                id="artist"
+                name="artist"
+                value={formData.artist || ""}
+                onChange={handleChange}
+                style={fieldStyle}
+              />
+            </div>
+            <div style={{ marginBottom: "20px" }}>
+              <label htmlFor="etc" style={labelStyle}>
+                기타 정보
+              </label>
+              <input
+                type="text"
+                id="etc"
+                name="etc"
+                value={formData.etc || ""}
+                onChange={handleChange}
+                style={fieldStyle}
+              />
+            </div>
+          </div>
+        );
+
+      case "MOVIE":
+        return (
+          <div>
+            <div style={{ marginBottom: "20px" }}>
+              <label htmlFor="director" style={labelStyle}>
+                감독
+              </label>
+              <input
+                type="text"
+                id="director"
+                name="director"
+                value={formData.director || ""}
+                onChange={handleChange}
+                style={fieldStyle}
+              />
+            </div>
+            <div style={{ marginBottom: "20px" }}>
+              <label htmlFor="actor" style={labelStyle}>
+                출연진
+              </label>
+              <input
+                type="text"
+                id="actor"
+                name="actor"
+                value={formData.actor || ""}
+                onChange={handleChange}
+                style={fieldStyle}
+              />
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -259,7 +386,7 @@ const ItemForm = () => {
 
         <div style={{ marginBottom: "20px" }}>
           <label
-            htmlFor="author"
+            htmlFor="itemType"
             style={{
               display: "block",
               marginBottom: "5px",
@@ -267,51 +394,31 @@ const ItemForm = () => {
               fontWeight: "bold",
             }}
           >
-            저자
+            상품 타입
           </label>
-          <input
-            type="text"
-            id="author"
-            name="author"
-            value={formData.author || ""}
+          <select
+            id="itemType"
+            name="itemType"
+            value={formData.itemType}
             onChange={handleChange}
+            required
             style={{
               width: "100%",
               padding: "10px",
               fontSize: "16px",
               border: "1px solid #ddd",
               borderRadius: "4px",
+              backgroundColor: "white",
             }}
-          />
+          >
+            <option value="BOOK">도서</option>
+            <option value="ALBUM">음반</option>
+            <option value="MOVIE">영화</option>
+          </select>
         </div>
 
-        <div style={{ marginBottom: "20px" }}>
-          <label
-            htmlFor="isbn"
-            style={{
-              display: "block",
-              marginBottom: "5px",
-              fontSize: "14px",
-              fontWeight: "bold",
-            }}
-          >
-            ISBN
-          </label>
-          <input
-            type="text"
-            id="isbn"
-            name="isbn"
-            value={formData.isbn || ""}
-            onChange={handleChange}
-            style={{
-              width: "100%",
-              padding: "10px",
-              fontSize: "16px",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
-            }}
-          />
-        </div>
+        {/* 타입별 필드 동적 렌더링 */}
+        {renderTypeSpecificFields()}
 
         <div style={{ marginBottom: "20px" }}>
           <label

@@ -1,6 +1,10 @@
 package com.example.backend.order.dto;
 
 import com.example.backend.delivery.DeliveryStatus;
+import com.example.backend.item.domain.Album;
+import com.example.backend.item.domain.Book;
+import com.example.backend.item.domain.Item;
+import com.example.backend.item.domain.Movie;
 import com.example.backend.order.Order;
 import com.example.backend.order.OrderStatus;
 import lombok.Getter;
@@ -37,13 +41,31 @@ public class OrderResponseDto {
     @NoArgsConstructor
     public static class OrderItemDto {
         private String itemName;
+        private String itemType;
+        private String itemTypeDisplay;
         private int orderPrice;
         private int count;
 
         public OrderItemDto(com.example.backend.order.OrderItem orderItem) {
-            this.itemName = orderItem.getItem().getName();
+            Item item = orderItem.getItem();
+            this.itemName = item.getName();
             this.orderPrice = orderItem.getOrderPrice();
             this.count = orderItem.getCount();
+            
+            // 상품 타입 판별
+            if (item instanceof Book) {
+                this.itemType = "BOOK";
+                this.itemTypeDisplay = "도서";
+            } else if (item instanceof Album) {
+                this.itemType = "ALBUM";
+                this.itemTypeDisplay = "음반";
+            } else if (item instanceof Movie) {
+                this.itemType = "MOVIE";
+                this.itemTypeDisplay = "영화";
+            } else {
+                this.itemType = "UNKNOWN";
+                this.itemTypeDisplay = "기타";
+            }
         }
     }
 } 

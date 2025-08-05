@@ -1,7 +1,9 @@
 package com.example.backend.item;
 
+import com.example.backend.item.domain.Album;
 import com.example.backend.item.domain.Book;
 import com.example.backend.item.domain.Item;
+import com.example.backend.item.domain.Movie;
 import com.example.backend.item.dto.PagedItemsDto;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
@@ -31,6 +33,55 @@ public class ItemService {
 
     @Transactional
     public Long saveItem(Item item) {
+        itemRepository.save(item);
+        return item.getId();
+    }
+
+    /**
+     * ItemForm을 받아서 타입별로 아이템을 생성하고 저장
+     */
+    @Transactional
+    public Long saveItemFromForm(ItemForm form) {
+        Item item;
+        
+        switch (form.getItemType().toUpperCase()) {
+            case "BOOK":
+                Book book = new Book();
+                book.setName(form.getName());
+                book.setPrice(form.getPrice());
+                book.setStockQuantity(form.getStockQuantity());
+                book.setImageUrl(form.getImageUrl());
+                book.setAuthor(form.getAuthor());
+                book.setIsbn(form.getIsbn());
+                item = book;
+                break;
+                
+            case "ALBUM":
+                Album album = new Album();
+                album.setName(form.getName());
+                album.setPrice(form.getPrice());
+                album.setStockQuantity(form.getStockQuantity());
+                album.setImageUrl(form.getImageUrl());
+                album.setArtist(form.getArtist());
+                album.setEtc(form.getEtc());
+                item = album;
+                break;
+                
+            case "MOVIE":
+                Movie movie = new Movie();
+                movie.setName(form.getName());
+                movie.setPrice(form.getPrice());
+                movie.setStockQuantity(form.getStockQuantity());
+                movie.setImageUrl(form.getImageUrl());
+                movie.setDirector(form.getDirector());
+                movie.setActor(form.getActor());
+                item = movie;
+                break;
+                
+            default:
+                throw new IllegalArgumentException("지원하지 않는 아이템 타입입니다: " + form.getItemType());
+        }
+        
         itemRepository.save(item);
         return item.getId();
     }
@@ -107,6 +158,45 @@ public class ItemService {
             if (isbn != null) {
                 book.setIsbn(isbn);
             }
+        }
+    }
+
+    /**
+     * ItemForm을 받아서 타입별로 아이템을 업데이트
+     */
+    @Transactional
+    public void updateItemFromForm(Long id, ItemForm form) {
+        Item item = itemRepository.findOne(id);
+        if (item == null) {
+            throw new IllegalStateException("수정할 상품을 찾을 수 없습니다.");
+        }
+
+        // 이미지 URL이 변경된 경우 기존 이미지 삭제
+        String oldImageUrl = item.getImageUrl();
+        if (oldImageUrl != null && !oldImageUrl.isEmpty() && !oldImageUrl.equals(form.getImageUrl())) {
+            log.info("이미지 URL 변경 감지 - 이전: {}, 새로운: {}", oldImageUrl, form.getImageUrl());
+            deleteImageFromS3(oldImageUrl);
+        }
+
+        // 공통 필드 업데이트
+        item.setName(form.getName());
+        item.setPrice(form.getPrice());
+        item.setStockQuantity(form.getStockQuantity());
+        item.setImageUrl(form.getImageUrl());
+
+        // 타입별 필드 업데이트
+        if (item instanceof Book) {
+            Book book = (Book) item;
+            book.setAuthor(form.getAuthor());
+            book.setIsbn(form.getIsbn());
+        } else if (item instanceof Album) {
+            Album album = (Album) item;
+            album.setArtist(form.getArtist());
+            album.setEtc(form.getEtc());
+        } else if (item instanceof Movie) {
+            Movie movie = (Movie) item;
+            movie.setDirector(form.getDirector());
+            movie.setActor(form.getActor());
         }
     }
 

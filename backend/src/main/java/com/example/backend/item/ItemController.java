@@ -1,7 +1,9 @@
 package com.example.backend.item;
 
+import com.example.backend.item.domain.Album;
 import com.example.backend.item.domain.Book;
 import com.example.backend.item.domain.Item;
+import com.example.backend.item.domain.Movie;
 import com.example.backend.item.dto.ItemDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -107,13 +109,13 @@ public class ItemController {
 
     /**
      * 새로운 상품 등록을 위한 폼 데이터를 반환
-     * @return 빈 BookForm 객체
+     * @return 빈 ItemForm 객체
      */
     @GetMapping("/new")
     @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<BookForm> createForm() {
-        return ResponseEntity.ok(new BookForm());
+    public ResponseEntity<ItemForm> createForm() {
+        return ResponseEntity.ok(new ItemForm());
     }
 
     /**
@@ -123,38 +125,59 @@ public class ItemController {
      */
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Long> create(@RequestBody BookForm form) {
-        Book book = new Book();
-        book.setName(form.getName());
-        book.setPrice(form.getPrice());
-        book.setStockQuantity(form.getStockQuantity());
-        book.setAuthor(form.getAuthor());
-        book.setIsbn(form.getIsbn());
-        book.setImageUrl(form.getImageUrl());
-
-        Long id = itemService.saveItem(book);
-        return ResponseEntity.ok(id);
+    public ResponseEntity<Long> create(@RequestBody ItemForm form) {
+        log.info("상품 등록 요청 - 타입: {}, 이름: {}", form.getItemType(), form.getName());
+        try {
+            Long id = itemService.saveItemFromForm(form);
+            log.info("상품 등록 완료 - ID: {}", id);
+            return ResponseEntity.ok(id);
+        } catch (IllegalArgumentException e) {
+            log.warn("상품 등록 실패 - 사유: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            log.error("상품 등록 중 오류 발생 - 오류: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     /**
      * 상품 수정을 위한 폼 데이터를 반환
      * @param itemId 수정할 상품의 ID
-     * @return 상품 정보가 담긴 BookForm 객체
+     * @return 상품 정보가 담긴 ItemForm 객체
      */
     @GetMapping("/{itemId}/edit")
     @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<BookForm> updateItemForm(@PathVariable("itemId") Long itemId) {
-        Book item = (Book) itemService.findOne(itemId);
+    public ResponseEntity<ItemForm> updateItemForm(@PathVariable("itemId") Long itemId) {
+        Item item = itemService.findOne(itemId);
+        if (item == null) {
+            return ResponseEntity.notFound().build();
+        }
 
-        BookForm form = new BookForm();
+        ItemForm form = new ItemForm();
         form.setId(item.getId());
         form.setName(item.getName());
         form.setPrice(item.getPrice());
         form.setStockQuantity(item.getStockQuantity());
-        form.setAuthor(item.getAuthor());
-        form.setIsbn(item.getIsbn());
         form.setImageUrl(item.getImageUrl());
+
+        // 타입별 필드 설정
+        if (item instanceof Book) {
+            Book book = (Book) item;
+            form.setItemType("BOOK");
+            form.setAuthor(book.getAuthor());
+            form.setIsbn(book.getIsbn());
+        } else if (item instanceof Album) {
+            Album album = (Album) item;
+            form.setItemType("ALBUM");
+            form.setArtist(album.getArtist());
+            form.setEtc(album.getEtc());
+        } else if (item instanceof Movie) {
+            Movie movie = (Movie) item;
+            form.setItemType("MOVIE");
+            form.setDirector(movie.getDirector());
+            form.setActor(movie.getActor());
+        }
 
         return ResponseEntity.ok(form);
     }
@@ -167,18 +190,10 @@ public class ItemController {
      */
     @PutMapping("/{itemId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> updateItem(@PathVariable Long itemId, @RequestBody BookForm form) {
-        log.info("상품 수정 요청 - 상품 ID: {}, 수정 정보: {}", itemId, form);
+    public ResponseEntity<Void> updateItem(@PathVariable Long itemId, @RequestBody ItemForm form) {
+        log.info("상품 수정 요청 - 상품 ID: {}, 타입: {}, 이름: {}", itemId, form.getItemType(), form.getName());
         try {
-            itemService.updateItem(
-                itemId,
-                form.getName(),
-                form.getPrice(),
-                form.getStockQuantity(),
-                form.getAuthor(),
-                form.getIsbn(),
-                form.getImageUrl()
-            );
+            itemService.updateItemFromForm(itemId, form);
             log.info("상품 수정 완료 - 상품 ID: {}", itemId);
             return ResponseEntity.ok().build();
         } catch (IllegalStateException e) {
