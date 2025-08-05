@@ -18,7 +18,11 @@ public class CorsMvcConfig implements WebMvcConfigurer { // Spring MVC 설정을
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         registry.addMapping("/**") // 모든 경로에 대해 CORS 정책 적용
+<<<<<<< HEAD
                 .allowedOrigins("http://localhost:5173") // 프론트엔드 URL 허용
+=======
+                .allowedOrigins("http://43.202.50.50:5173", "http://localhost:5173") // 프론트엔드 URL 허용
+>>>>>>> parent of 132b4c3 (하드 코딩된 URL, .env 분리)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // DELETE 허용
                 .allowedHeaders("*") // 모든 헤더 허용
                 

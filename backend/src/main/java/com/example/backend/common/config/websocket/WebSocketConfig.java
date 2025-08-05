@@ -30,7 +30,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(@NonNull StompEndpointRegistry registry) {
         registry.addEndpoint("/connect")
+<<<<<<< HEAD
                 .setAllowedOrigins("http://localhost:5173")
+=======
+                .setAllowedOrigins("http://43.202.50.50:5173", "http://localhost:5173")
+>>>>>>> parent of 132b4c3 (하드 코딩된 URL, .env 분리)
                 .withSockJS()
                 .setHeartbeatTime(10000);
     }
