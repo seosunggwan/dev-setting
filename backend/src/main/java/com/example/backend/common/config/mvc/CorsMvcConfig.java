@@ -1,6 +1,5 @@
 package com.example.backend.common.config.mvc;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -16,15 +15,10 @@ import java.util.List;
 @Configuration // 이 클래스가 Spring 설정 클래스임을 나타냄
 public class CorsMvcConfig implements WebMvcConfigurer { // Spring MVC 설정을 위해 WebMvcConfigurer 구현
 
-    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173}")
-    private String corsAllowedOrigins;
-
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
-        String[] origins = corsAllowedOrigins.split(",");
-        
         registry.addMapping("/**") // 모든 경로에 대해 CORS 정책 적용
-                .allowedOrigins(origins) // 환경변수에서 읽어온 프론트엔드 URL 허용
+                .allowedOrigins("http://43.202.50.50:5173", "http://localhost:5173") // 프론트엔드 URL 허용
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // DELETE 허용
                 .allowedHeaders("*") // 모든 헤더 허용
                 
