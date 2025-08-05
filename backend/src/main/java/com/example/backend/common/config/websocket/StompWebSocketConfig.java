@@ -1,5 +1,6 @@
 package com.example.backend.common.config.websocket;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
@@ -15,6 +16,9 @@ import java.util.List;
 @Configuration
 @EnableWebSocketMessageBroker
 public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173}")
+    private String corsAllowedOrigins;
     private final StompHandler stompHandler;
 
     public StompWebSocketConfig(StompHandler stompHandler) {
@@ -24,7 +28,7 @@ public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(@NonNull StompEndpointRegistry registry) {
         registry.addEndpoint("/connect")
-                .setAllowedOrigins("http://43.202.50.50:5173", "http://localhost:5173", "http://localhost:3000")
+                .setAllowedOrigins(corsAllowedOrigins.split(","))
 //                ws://가 아닌 http:// 엔드포인트를 사용할수 있게 해주는 sockJs라이브러리를 통한 요청을 허용하는 설정.
                 .withSockJS();
     }
