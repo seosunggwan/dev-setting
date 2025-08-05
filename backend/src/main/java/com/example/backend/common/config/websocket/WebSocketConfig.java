@@ -30,7 +30,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(@NonNull StompEndpointRegistry registry) {
         registry.addEndpoint("/connect")
-                .setAllowedOrigins("http://43.202.50.50:5173", "http://localhost:5173")
+                .setAllowedOrigins("http://localhost:5173")
                 .withSockJS()
                 .setHeartbeatTime(10000);
     }

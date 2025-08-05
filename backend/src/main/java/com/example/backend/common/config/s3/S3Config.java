@@ -87,7 +87,7 @@ public class S3Config {
                         CORSRule.AllowedMethods.DELETE, 
                         CORSRule.AllowedMethods.HEAD
                     ))
-                    .withAllowedOrigins(Arrays.asList("http://43.202.50.50:5173", "http://localhost:5173", "https://your-production-domain.com"))
+                    .withAllowedOrigins(Arrays.asList("http://localhost:5173", "https://your-production-domain.com"))
                     .withAllowedHeaders(Arrays.asList("*"))
                     .withMaxAgeSeconds(3000)
                     .withExposedHeaders(Arrays.asList("ETag", "x-amz-meta-custom-header"))

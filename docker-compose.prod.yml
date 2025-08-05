@@ -1,152 +1,102 @@
+version: '3.8'
+
 services:
   db:
     image: mysql:8.0
-    container_name: db
+    container_name: db-prod
     environment:
       MYSQL_DATABASE: portfolio
       MYSQL_USER: portfolio_user
-      MYSQL_PASSWORD: ${RDS_PASSWORD:-portfolio1234}
-      MYSQL_ROOT_PASSWORD: ${RDS_PASSWORD:-portfolio1234}
-    ports:  # 운영에서는 내부 네트워크만 사용
-      - "3306:3306"
+      MYSQL_PASSWORD: ${RDS_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${RDS_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - monitoring
+      - internal
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "portfolio_user", "--password=${RDS_PASSWORD:-portfolio1234}" ]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "portfolio_user", "--password=${RDS_PASSWORD}" ]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s  # 컨테이너 시작 후 30초 동안은 실패를 무시
+      start_period: 30s
     deploy:
       resources:
         limits:
-          cpus: "2"  # 최대 2개의 코어 할당
-          memory: 2GB   # 최대 2GB 메모리 할당
+          cpus: "2"
+          memory: 2GB
 
   app:
-    build: ./backend
-    container_name: spring-app
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: spring-app-prod
     ports:
       - "8080:8080"
     environment:
       # Database Configuration
       RDS_ENDPOINT: db
-      RDS_PASSWORD: ${RDS_PASSWORD:-portfolio1234}
+      RDS_PASSWORD: ${RDS_PASSWORD}
       # JWT Configuration
-      JWT_SECRET: ${JWT_SECRET:-your-256-bit-secret-your-256-bit-secret-your-256-bit-secret-your-256-bit-secret}
+      JWT_SECRET: ${JWT_SECRET}
       # OAuth2 Configuration
-      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID:-your-naver-client-id}
-      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET:-your-naver-client-secret}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-your-google-client-id}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-your-google-client-secret}
-      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-your-github-client-id}
-      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-your-github-client-secret}
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
       # AWS S3 Configuration
-      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-your-s3-bucket}
-      AWS_REGION: ${AWS_REGION:-ap-northeast-2}
-      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY:-your-aws-access-key}
-      AWS_SECRET_KEY: ${AWS_SECRET_KEY:-your-aws-secret-key}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
       # Redis Configuration
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
-      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-1234}
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
       # JVM Configuration
-      JAVA_OPTS: "-Xms256m -Xmx512m"
+      JAVA_OPTS: "-Xms512m -Xmx1g"
     deploy:
       resources:
         limits:
-          cpus: '2'    # CPU 2코어로 제한
-          memory: 1G   # 전체 메모리 1GB로 제한
+          cpus: '2'
+          memory: 2G
         reservations:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '1'
+          memory: 1G
     depends_on:
       db:
-        condition: service_healthy  # MySQL의 health check가 성공할 때까지 대기
+        condition: service_healthy
       redis:
-        condition: service_started  # Redis가 시작되면 바로 시작
+        condition: service_started
     networks:
-      - monitoring
+      - internal
 
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    networks:
-      - monitoring
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    ports:
-      - "3001:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
-    volumes:
-      - grafana_data:/var/lib/grafana
-    networks:
-      - monitoring
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-
-  # Redis
   redis:
     image: redis:7.0
-    container_name: redis-server
-    command: redis-server --requirepass ${REDIS_PASSWORD:-1234}
-    # ports:  # 운영에서는 내부 네트워크만 사용
-    #   - "6379:6379"
+    container_name: redis-server-prod
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
     networks:
-      - monitoring
+      - internal
     deploy:
       resources:
         limits:
           cpus: '1'
           memory: 512M
 
-  # Redis Exporter
-  redis_exporter:
-    image: oliver006/redis_exporter
-    container_name: redis_exporter
-    ports:
-      - "9121:9121"
-    command:
-      - '--redis.addr=redis://:${REDIS_PASSWORD:-1234}@redis:6379'
-    depends_on:
-      - redis
-    networks:
-      - monitoring
-
-  # Frontend
   frontend:
-    build:
+    build: 
       context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
-    container_name: react-app
+      dockerfile: Dockerfile.prod
+    container_name: react-app-prod
     ports:
-      - "5173:5173"
+      - "80:80"
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     networks:
-      - monitoring
+      - internal
     depends_on:
       - app
     deploy:
@@ -155,11 +105,10 @@ services:
           cpus: '1'
           memory: 512M
 
-
 volumes:
   mysql_data:
-  grafana_data:
   redis_data:
 
 networks:
-  monitoring:
+  internal:
+    driver: bridge 
