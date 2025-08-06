@@ -120,7 +120,9 @@ public class SecurityConfig {
                         "/publish/**",
                         "/health",
                         "/api/items/image",
+                        "/items/image",
                         "/api/auth/refresh",
+                        "/auth/refresh",
                         TokenConstants.TOKEN_REISSUE_PATH,
                         "/auth/logout",
                         "/actuator/**"
