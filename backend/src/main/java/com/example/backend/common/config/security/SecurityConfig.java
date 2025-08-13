@@ -125,9 +125,7 @@ public class SecurityConfig {
                         "/auth/refresh",
                         TokenConstants.TOKEN_REISSUE_PATH,
                         "/auth/logout",
-                        "/actuator/**",
-                        "/api/actuator/**",
-                        "/test/**"
+                        "/actuator/**"
                     ).permitAll()
                     .requestMatchers("/admin").hasAuthority("ADMIN")
                     .anyRequest().authenticated()

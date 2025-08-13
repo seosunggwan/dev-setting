@@ -1,14 +1,12 @@
 global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
+  scrape_interval: 5s
+  evaluation_interval: 5s
 
 scrape_configs:
   - job_name: 'spring-boot-app'
-    metrics_path: '/api/actuator/prometheus'
+    metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: [ 'app:8080' ]
-    scrape_interval: 15s
-    honor_labels: true
   - job_name: 'redis'
     static_configs:
       - targets: [ 'redis_exporter:9121' ]
