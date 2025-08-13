@@ -239,3 +239,4 @@ Thumbs.db
 .terraform.lock.hcl
 terraform.tfvars
 # .env
+.env
