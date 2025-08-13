@@ -202,17 +202,7 @@ const LoginForm = () => {
                 />
               </a>
             </Grid>
-            <Grid item>
-              <a
-                href={`${API_BASE_URL}/api/oauth2/authorization/github`}
-              >
-                <img
-                  src="github_icon.png"
-                  alt="github"
-                  style={{ width: 40, height: 40, borderRadius: "50%" }}
-                />
-              </a>
-            </Grid>
+
           </Grid>
 
           <Box mt={3} textAlign="center">
