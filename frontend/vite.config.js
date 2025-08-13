@@ -33,6 +33,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         ws: true,
+        rewrite: (path) => path, // /api를 그대로 유지 (백엔드 context-path가 /api이므로)
         headers: {
           Connection: "keep-alive",
         },
