@@ -93,10 +93,10 @@ grafana_data/
 *.dump
 
 # Environment & Configuration
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# .env.local
+# .env.development.local
+# .env.test.local
+# .env.production.local
 **/application-*.yml
 **/application-*.properties
 config/secrets.yml
@@ -238,4 +238,4 @@ Thumbs.db
 *.tfstate.*
 .terraform.lock.hcl
 terraform.tfvars
-.env
+# .env
