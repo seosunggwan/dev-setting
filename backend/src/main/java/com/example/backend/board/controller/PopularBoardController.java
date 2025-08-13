@@ -126,4 +126,26 @@ public class PopularBoardController {
                 .body("인기글 결산 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
+    
+    /**
+     * 인기글 테스트용 생성 (개발용 - 권한 불필요)
+     * - POST /api/boards/popular/test
+     */
+    @PostMapping("/test")
+    public ResponseEntity<?> testPopularBoards() {
+        log.info("테스트용 인기글 생성 요청");
+        try {
+            popularBoardService.runManualPopularBoardSelection();
+            return ResponseEntity.ok(Map.of(
+                "message", "테스트용 인기글이 생성되었습니다.",
+                "date", LocalDate.now()
+            ));
+        } catch (Exception e) {
+            log.error("테스트용 인기글 생성 중 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of(
+                "message", "테스트용 인기글 생성 중 오류가 발생했습니다: " + e.getMessage(),
+                "error", e.getClass().getSimpleName()
+            ));
+        }
+    }
 } 

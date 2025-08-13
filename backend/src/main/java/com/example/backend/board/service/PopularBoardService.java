@@ -31,13 +31,13 @@ public class PopularBoardService {
      * 매일 오전 1시에 인기글을 선정하여 저장합니다.
      * 어제 하루 동안의 활동(조회수, 좋아요수, 댓글수)을 기준으로 점수를 계산합니다.
      */
-    @Scheduled(cron = "0 0 1 * * ?") // 매일 오전 1시에 실행
+    @Scheduled(cron = "0 */5 * * * ?") // 5분마다 실행 (테스트용)
     @Transactional
     public void selectDailyPopularBoards() {
         log.info("인기글 선정 작업 시작: {}", LocalDateTime.now());
         
         LocalDate today = LocalDate.now();
-        LocalDateTime startDateTime = today.minusDays(1).atStartOfDay(); // 어제 00:00:00
+        LocalDateTime startDateTime = today.minusDays(30).atStartOfDay(); // 최근 30일 (테스트용)
         
         // 기존 오늘 날짜의 인기글 데이터 삭제 (업데이트 전 초기화)
         popularBoardRepository.deleteBySelectionDate(today);

@@ -123,7 +123,8 @@ public class SecurityConfig {
                         "/api/auth/refresh",
                         TokenConstants.TOKEN_REISSUE_PATH,
                         "/auth/logout",
-                        "/actuator/**"
+                        "/actuator/**",
+                        "/api/boards/popular/test" // 개발용 인기글 테스트 API
                     ).permitAll()
                     .requestMatchers("/admin").hasAuthority("ADMIN")
                     .anyRequest().authenticated()

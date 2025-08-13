@@ -147,11 +147,18 @@ export default function NavBar() {
               <ListItemText primary="상품 등록" />
             </ListItem>
 
+            <ListItem button onClick={() => handleNavigate("/orders")}>
+              <ListItemIcon>
+                <ShoppingCartIcon />
+              </ListItemIcon>
+              <ListItemText primary="주문 목록" />
+            </ListItem>
+            
             <ListItem button onClick={() => handleNavigate("/order")}>
               <ListItemIcon>
                 <ShoppingCartIcon />
               </ListItemIcon>
-              <ListItemText primary="주문" />
+              <ListItemText primary="주문 등록" />
             </ListItem>
 
             {/* 게시판 메뉴 추가 */}
@@ -248,7 +255,7 @@ export default function NavBar() {
               fontWeight: "bold",
             }}
           >
-            채팅 애플리케이션
+            Dana
           </Typography>
 
           {/* 데스크톱 메뉴 */}
@@ -297,29 +304,20 @@ export default function NavBar() {
                   <Button
                     color="inherit"
                     component={Link}
-                    to="/groupchatting/list"
-                    sx={{ mx: 1 }}
-                    startIcon={<GroupIcon />}
-                  >
-                    그룹 채팅
-                  </Button>
-                  <Button
-                    color="inherit"
-                    component={Link}
-                    to="/items"
-                    sx={{ mx: 1 }}
-                    startIcon={<InventoryIcon />}
-                  >
-                    상품
-                  </Button>
-                  <Button
-                    color="inherit"
-                    component={Link}
                     to="/boards"
                     sx={{ mx: 1 }}
                     startIcon={<ArticleIcon />}
                   >
                     게시판
+                  </Button>
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/groupchatting/list"
+                    sx={{ mx: 1 }}
+                    startIcon={<GroupIcon />}
+                  >
+                    그룹 채팅
                   </Button>
                   <Button
                     color="inherit"
@@ -333,6 +331,15 @@ export default function NavBar() {
                   <Button
                     color="inherit"
                     component={Link}
+                    to="/items"
+                    sx={{ mx: 1 }}
+                    startIcon={<InventoryIcon />}
+                  >
+                    상품
+                  </Button>
+                  <Button
+                    color="inherit"
+                    component={Link}
                     to="/items/new"
                     sx={{ mx: 1 }}
                     startIcon={<InventoryIcon />}
@@ -342,11 +349,20 @@ export default function NavBar() {
                   <Button
                     color="inherit"
                     component={Link}
+                    to="/orders"
+                    sx={{ mx: 1 }}
+                    startIcon={<ShoppingCartIcon />}
+                  >
+                    주문 목록
+                  </Button>
+                  <Button
+                    color="inherit"
+                    component={Link}
                     to="/order"
                     sx={{ mx: 1 }}
                     startIcon={<ShoppingCartIcon />}
                   >
-                    주문
+                    주문 등록
                   </Button>
 
                   <Tooltip title="설정">
