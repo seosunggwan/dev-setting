@@ -26,7 +26,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web' // Spring MVC (REST API)
 	implementation 'org.springframework.boot:spring-boot-starter-websocket' // WebSocket 지원
 	implementation 'org.springframework.boot:spring-boot-starter-validation' // 유효성 검증을 위한 의존성 추가
-
+	implementation 'org.springframework.boot:spring-boot-starter-actuator' // Actuator 추가
+	implementation 'io.micrometer:micrometer-registry-prometheus' // Prometheus 메트릭 추가
 
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.1'
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.574' // AWS SDK v1 추가
