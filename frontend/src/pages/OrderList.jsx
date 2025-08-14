@@ -10,6 +10,12 @@ const OrderList = () => {
   const [orderSearch, setOrderSearch] = useState({
     memberName: "",
     orderStatus: null,
+    itemName: "",
+    categoryName: "",
+    orderDateFrom: "",
+    orderDateTo: "",
+    minPrice: "",
+    maxPrice: "",
   });
   const [pageInfo, setPageInfo] = useState({
     page: 0,
@@ -28,31 +34,55 @@ const OrderList = () => {
   const size = parseInt(searchParams.get("size") || "10");
   const urlMemberName = searchParams.get("memberName") || "";
   const urlOrderStatus = searchParams.get("orderStatus") || "";
+  const urlItemName = searchParams.get("itemName") || "";
+  const urlCategoryName = searchParams.get("categoryName") || "";
+  const urlOrderDateFrom = searchParams.get("orderDateFrom") || "";
+  const urlOrderDateTo = searchParams.get("orderDateTo") || "";
+  const urlMinPrice = searchParams.get("minPrice") || "";
+  const urlMaxPrice = searchParams.get("maxPrice") || "";
 
+  // 로그인 상태 체크
   useEffect(() => {
     if (!isLoggedIn) {
       alert("로그인이 필요합니다.");
       navigate("/login", { state: "/orders" });
       return;
     }
+  }, [isLoggedIn, navigate]);
+
+  // URL 파라미터 변경 시 검색 조건 업데이트 및 데이터 로드
+  useEffect(() => {
+    if (!isLoggedIn) return; // 로그인되지 않았으면 실행하지 않음
 
     // URL 파라미터로부터 검색 조건 업데이트
     setOrderSearch({
       memberName: urlMemberName,
-      orderStatus: urlOrderStatus || null
+      orderStatus: urlOrderStatus || null,
+      itemName: urlItemName,
+      categoryName: urlCategoryName,
+      orderDateFrom: urlOrderDateFrom,
+      orderDateTo: urlOrderDateTo,
+      minPrice: urlMinPrice,
+      maxPrice: urlMaxPrice,
     });
 
     // URL의 페이지 정보로 주문 목록 조회
-    fetchOrders(page, size, urlMemberName, urlOrderStatus);
-  }, [isLoggedIn, navigate, page, size, urlMemberName, urlOrderStatus]);
+    fetchOrders(page, size, urlMemberName, urlOrderStatus, urlItemName, urlCategoryName, urlOrderDateFrom, urlOrderDateTo, urlMinPrice, urlMaxPrice);
+  }, [isLoggedIn, page, size, urlMemberName, urlOrderStatus, urlItemName, urlCategoryName, urlOrderDateFrom, urlOrderDateTo, urlMinPrice, urlMaxPrice]);
 
-  const fetchOrders = async (page, size, memberName = "", orderStatus = "") => {
+  const fetchOrders = async (page, size, memberName = "", orderStatus = "", itemName = "", categoryName = "", orderDateFrom = "", orderDateTo = "", minPrice = "", maxPrice = "") => {
     try {
       setLoading(true);
       console.log("📡 fetchOrders 호출됨!");
       console.log("검색 조건:", {
         memberName: memberName || "",
         orderStatus: orderStatus || "",
+        itemName: itemName || "",
+        categoryName: categoryName || "",
+        orderDateFrom: orderDateFrom || "",
+        orderDateTo: orderDateTo || "",
+        minPrice: minPrice || "",
+        maxPrice: maxPrice || "",
         page: page,
         size: size,
       });
@@ -72,6 +102,37 @@ const OrderList = () => {
       if (orderStatus) {
         params.orderStatus = orderStatus;
       }
+
+      if (itemName && itemName.trim() !== "") {
+        params.itemName = itemName.trim();
+      }
+
+      if (categoryName && categoryName.trim() !== "") {
+        params.categoryName = categoryName.trim();
+        console.log("🔍 카테고리 검색 파라미터 추가:", categoryName.trim());
+      }
+
+      if (orderDateFrom && orderDateFrom.trim() !== "") {
+        // datetime-local 형식을 ISO 형식으로 변환
+        const fromDate = new Date(orderDateFrom.trim());
+        params.orderDateFrom = fromDate.toISOString();
+      }
+
+      if (orderDateTo && orderDateTo.trim() !== "") {
+        // datetime-local 형식을 ISO 형식으로 변환
+        const toDate = new Date(orderDateTo.trim());
+        params.orderDateTo = toDate.toISOString();
+      }
+
+      if (minPrice && minPrice.trim() !== "") {
+        params.minPrice = parseInt(minPrice);
+      }
+
+      if (maxPrice && maxPrice.trim() !== "") {
+        params.maxPrice = parseInt(maxPrice);
+      }
+      
+      console.log("API 파라미터:", params);
 
       // 검색 API 호출
       const response = await axiosInstance.get(url, {
@@ -135,6 +196,34 @@ const OrderList = () => {
     if (orderSearch.orderStatus) {
       params.orderStatus = orderSearch.orderStatus;
     }
+
+    if (orderSearch.itemName && orderSearch.itemName.trim() !== "") {
+      params.itemName = orderSearch.itemName.trim();
+    }
+
+    if (orderSearch.categoryName && orderSearch.categoryName.trim() !== "") {
+      params.categoryName = orderSearch.categoryName.trim();
+    }
+
+    if (orderSearch.orderDateFrom && orderSearch.orderDateFrom.trim() !== "") {
+      // datetime-local 형식을 ISO 형식으로 변환
+      const fromDate = new Date(orderSearch.orderDateFrom.trim());
+      params.orderDateFrom = fromDate.toISOString();
+    }
+
+    if (orderSearch.orderDateTo && orderSearch.orderDateTo.trim() !== "") {
+      // datetime-local 형식을 ISO 형식으로 변환
+      const toDate = new Date(orderSearch.orderDateTo.trim());
+      params.orderDateTo = toDate.toISOString();
+    }
+
+    if (orderSearch.minPrice && orderSearch.minPrice.trim() !== "") {
+      params.minPrice = orderSearch.minPrice.trim();
+    }
+
+    if (orderSearch.maxPrice && orderSearch.maxPrice.trim() !== "") {
+      params.maxPrice = orderSearch.maxPrice.trim();
+    }
     
     console.log("URL 파라미터:", params);
     setSearchParams(params);
@@ -147,7 +236,27 @@ const OrderList = () => {
       size: pageInfo.size,
       ...(orderSearch.memberName && { memberName: orderSearch.memberName }),
       ...(orderSearch.orderStatus && { orderStatus: orderSearch.orderStatus }),
+      ...(orderSearch.itemName && { itemName: orderSearch.itemName }),
+      ...(orderSearch.categoryName && { categoryName: orderSearch.categoryName }),
+      ...(orderSearch.orderDateFrom && { orderDateFrom: orderSearch.orderDateFrom }),
+      ...(orderSearch.orderDateTo && { orderDateTo: orderSearch.orderDateTo }),
+      ...(orderSearch.minPrice && { minPrice: orderSearch.minPrice }),
+      ...(orderSearch.maxPrice && { maxPrice: orderSearch.maxPrice }),
     });
+  };
+
+  const handleReset = () => {
+    setOrderSearch({
+      memberName: "",
+      orderStatus: null,
+      itemName: "",
+      categoryName: "",
+      orderDateFrom: "",
+      orderDateTo: "",
+      minPrice: "",
+      maxPrice: "",
+    });
+    setSearchParams({ page: 0, size: pageInfo.size });
   };
 
   // 페이지네이션 컴포넌트
@@ -245,7 +354,7 @@ const OrderList = () => {
       await axiosInstance.post(`/orders/${orderId}/cancel`, {});
 
       alert("주문이 취소되었습니다.");
-      fetchOrders(page, size, urlMemberName, urlOrderStatus);
+      fetchOrders(page, size, urlMemberName, urlOrderStatus, urlItemName, urlCategoryName, urlOrderDateFrom, urlOrderDateTo, urlMinPrice, urlMaxPrice);
     } catch (error) {
       console.error("주문 취소에 실패했습니다:", error);
       if (error.response?.status === 401) {
@@ -326,7 +435,7 @@ const OrderList = () => {
   }
 
   return (
-    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "20px" }}>
+    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
       <h1
         style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}
       >
@@ -337,7 +446,7 @@ const OrderList = () => {
         onSubmit={handleSearch}
         style={{
           marginBottom: "20px",
-          padding: "15px",
+          padding: "20px",
           backgroundColor: "#f9fafb",
           borderRadius: "8px",
           border: "1px solid #eee",
@@ -358,15 +467,15 @@ const OrderList = () => {
         
         <div
           style={{
-            display: "flex",
-            flexWrap: "wrap",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
             gap: "15px",
-            alignItems: "flex-end",
+            marginBottom: "15px",
           }}
         >
           {/* 관리자만 회원명 검색 필드 표시 */}
           {isAdmin() && (
-            <div style={{ flex: "1", minWidth: "200px" }}>
+            <div>
               <label
                 style={{
                   display: "block",
@@ -396,7 +505,7 @@ const OrderList = () => {
             </div>
           )}
           
-          <div style={{ flex: "1", minWidth: "200px" }}>
+          <div>
             <label
               style={{
                 display: "block",
@@ -427,21 +536,216 @@ const OrderList = () => {
               <option value="CANCEL">취소</option>
             </select>
           </div>
+
           <div>
-            <button
-              type="submit"
+            <label
               style={{
-                padding: "8px 16px",
-                backgroundColor: "#4F46E5",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
+                display: "block",
+                marginBottom: "6px",
+                fontWeight: "500",
               }}
             >
-              검색
-            </button>
+              상품명
+            </label>
+            <input
+              type="text"
+              value={orderSearch.itemName}
+              onChange={(e) =>
+                setOrderSearch({
+                  ...orderSearch,
+                  itemName: e.target.value,
+                })
+              }
+              placeholder="상품명 입력"
+              style={{
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+              }}
+            />
           </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "6px",
+                fontWeight: "500",
+              }}
+            >
+              카테고리
+            </label>
+            <select
+              value={orderSearch.categoryName || ""}
+              onChange={(e) =>
+                setOrderSearch({
+                  ...orderSearch,
+                  categoryName: e.target.value || "",
+                })
+              }
+              style={{
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+                backgroundColor: "white",
+              }}
+            >
+              <option value="">전체</option>
+              <option value="음반">음반</option>
+              <option value="도서">도서</option>
+              <option value="영화">영화</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "6px",
+                fontWeight: "500",
+              }}
+            >
+              주문일시 시작
+            </label>
+            <input
+              type="datetime-local"
+              value={orderSearch.orderDateFrom}
+              onChange={(e) =>
+                setOrderSearch({
+                  ...orderSearch,
+                  orderDateFrom: e.target.value,
+                })
+              }
+              style={{
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+              }}
+            />
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "6px",
+                fontWeight: "500",
+              }}
+            >
+              주문일시 끝
+            </label>
+            <input
+              type="datetime-local"
+              value={orderSearch.orderDateTo}
+              onChange={(e) =>
+                setOrderSearch({
+                  ...orderSearch,
+                  orderDateTo: e.target.value,
+                })
+              }
+              style={{
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+              }}
+            />
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "6px",
+                fontWeight: "500",
+              }}
+            >
+              최소 금액
+            </label>
+            <input
+              type="number"
+              value={orderSearch.minPrice}
+              onChange={(e) =>
+                setOrderSearch({
+                  ...orderSearch,
+                  minPrice: e.target.value,
+                })
+              }
+              placeholder="최소 금액"
+              min="0"
+              style={{
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+              }}
+            />
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "6px",
+                fontWeight: "500",
+              }}
+            >
+              최대 금액
+            </label>
+            <input
+              type="number"
+              value={orderSearch.maxPrice}
+              onChange={(e) =>
+                setOrderSearch({
+                  ...orderSearch,
+                  maxPrice: e.target.value,
+                })
+              }
+              placeholder="최대 금액"
+              min="0"
+              style={{
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+              }}
+            />
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+          <button
+            type="submit"
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#4F46E5",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontWeight: "500",
+            }}
+          >
+            🔍 검색
+          </button>
+          <button
+            type="button"
+            onClick={handleReset}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#6B7280",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontWeight: "500",
+            }}
+          >
+            🔄 초기화
+          </button>
         </div>
       </form>
 
@@ -616,7 +920,7 @@ const OrderList = () => {
             ) : (
               <tr>
                 <td
-                  colSpan="6"
+                  colSpan="7"
                   style={{ padding: "40px 10px", textAlign: "center" }}
                 >
                   <div>

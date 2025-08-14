@@ -16,10 +16,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.util.StringUtils;
 
 @RestController
 @RequiredArgsConstructor
@@ -116,22 +118,28 @@ public class OrderController {
     }
 
     /**
-     * 주문 검색 API (역할 기반)
-     * - ADMIN: 모든 주문에서 회원 이름, 주문 상태로 검색
-     * - USER: 본인 주문에서 주문 상태로만 검색 (회원 이름 검색 무시)
+     * 주문 검색 API (역할 기반) - 확장된 검색 조건 지원
+     * - ADMIN: 모든 주문에서 복합 조건으로 검색
+     * - USER: 본인 주문에서 복합 조건으로 검색
      */
     @GetMapping("/search")
     @Transactional(readOnly = true)
     public ResponseEntity<List<OrderResponseDto>> searchOrders(
             @RequestParam(required = false) String memberName,
             @RequestParam(required = false) OrderStatus orderStatus,
+            @RequestParam(required = false) String itemName,
+            @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) String orderDateFrom,
+            @RequestParam(required = false) String orderDateTo,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice,
             Authentication authentication) {
 
         String userEmail = getCurrentUserEmail(authentication);
         Role userRole = getCurrentUserRole(authentication);
         
-        log.info("주문 검색 요청 - 사용자: {}, 역할: {}, 회원명: {}, 주문상태: {}", 
-                userEmail, userRole, memberName, orderStatus);
+        log.info("주문 검색 요청 - 사용자: {}, 역할: {}, 회원명: {}, 주문상태: {}, 상품명: {}, 카테고리: {}, 날짜범위: {}~{}, 금액범위: {}~{}", 
+                userEmail, userRole, memberName, orderStatus, itemName, categoryName, orderDateFrom, orderDateTo, minPrice, maxPrice);
 
         // 검색 조건 객체 생성
         OrderSearch orderSearch = new OrderSearch();
@@ -141,6 +149,26 @@ public class OrderController {
         }
         // 일반 사용자는 회원 이름 검색 무시
         orderSearch.setOrderStatus(orderStatus);
+        orderSearch.setItemName(itemName);
+        orderSearch.setCategoryName(categoryName);
+        orderSearch.setMinPrice(minPrice);
+        orderSearch.setMaxPrice(maxPrice);
+        
+        // 날짜 파싱
+        if (orderDateFrom != null && !orderDateFrom.isEmpty()) {
+            try {
+                orderSearch.setOrderDateFrom(LocalDateTime.parse(orderDateFrom));
+            } catch (Exception e) {
+                log.warn("주문일시 시작 파싱 실패: {}", orderDateFrom);
+            }
+        }
+        if (orderDateTo != null && !orderDateTo.isEmpty()) {
+            try {
+                orderSearch.setOrderDateTo(LocalDateTime.parse(orderDateTo));
+            } catch (Exception e) {
+                log.warn("주문일시 끝 파싱 실패: {}", orderDateTo);
+            }
+        }
 
         // 역할별 검색 실행
         List<Order> orders = orderService.findOrdersByRoleAndSearch(userRole, userEmail, orderSearch);
@@ -186,9 +214,15 @@ public class OrderController {
     }
 
     /**
-     * 페이지네이션이 적용된 주문 검색 API (역할 기반)
+     * 페이지네이션이 적용된 주문 검색 API (역할 기반) - 확장된 검색 조건 지원
      * @param memberName 회원 이름 검색어 (ADMIN만 사용 가능)
      * @param orderStatus 주문 상태
+     * @param itemName 상품명 검색어
+     * @param categoryName 카테고리명 검색어
+     * @param orderDateFrom 주문일시 시작 (ISO 형식: 2024-01-15T10:30:00)
+     * @param orderDateTo 주문일시 끝 (ISO 형식: 2024-01-15T23:59:59)
+     * @param minPrice 최소 금액
+     * @param maxPrice 최대 금액
      * @param page 페이지 번호 (0부터 시작)
      * @param size 페이지당 항목 수
      * @return 페이지네이션이 적용된 주문 검색 결과와 페이지 정보
@@ -198,6 +232,12 @@ public class OrderController {
     public ResponseEntity<PagedOrdersDto> searchOrdersWithPaging(
             @RequestParam(required = false) String memberName,
             @RequestParam(required = false) OrderStatus orderStatus,
+            @RequestParam(required = false) String itemName,
+            @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) String orderDateFrom,
+            @RequestParam(required = false) String orderDateTo,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             Authentication authentication) {
@@ -205,8 +245,13 @@ public class OrderController {
         String userEmail = getCurrentUserEmail(authentication);
         Role userRole = getCurrentUserRole(authentication);
         
-        log.info("페이지네이션 주문 검색 요청 - 사용자: {}, 역할: {}, 회원명: {}, 주문상태: {}, 페이지: {}, 사이즈: {}",
-                userEmail, userRole, memberName, orderStatus, page, size);
+        log.info("페이지네이션 주문 검색 요청 - 사용자: {}, 역할: {}, 회원명: {}, 주문상태: {}, 상품명: {}, 카테고리: {}, 날짜범위: {}~{}, 금액범위: {}~{}, 페이지: {}, 사이즈: {}",
+                userEmail, userRole, memberName, orderStatus, itemName, categoryName, orderDateFrom, orderDateTo, minPrice, maxPrice, page, size);
+        
+        // 카테고리 검색 디버깅
+        if (StringUtils.hasText(categoryName)) {
+            log.info("🔍 카테고리 검색 실행: '{}'", categoryName);
+        }
 
         // 페이지 크기 제한
         if (size > 50) {
@@ -221,6 +266,26 @@ public class OrderController {
         }
         // 일반 사용자는 회원 이름 검색 무시
         orderSearch.setOrderStatus(orderStatus);
+        orderSearch.setItemName(itemName);
+        orderSearch.setCategoryName(categoryName);
+        orderSearch.setMinPrice(minPrice);
+        orderSearch.setMaxPrice(maxPrice);
+        
+        // 날짜 파싱
+        if (orderDateFrom != null && !orderDateFrom.isEmpty()) {
+            try {
+                orderSearch.setOrderDateFrom(LocalDateTime.parse(orderDateFrom));
+            } catch (Exception e) {
+                log.warn("주문일시 시작 파싱 실패: {}", orderDateFrom);
+            }
+        }
+        if (orderDateTo != null && !orderDateTo.isEmpty()) {
+            try {
+                orderSearch.setOrderDateTo(LocalDateTime.parse(orderDateTo));
+            } catch (Exception e) {
+                log.warn("주문일시 끝 파싱 실패: {}", orderDateTo);
+            }
+        }
 
         // 역할별 서비스 호출
         PagedOrdersDto result = orderService.findOrdersByRoleAndSearchWithPaging(
@@ -236,5 +301,16 @@ public class OrderController {
         orderService.cancelOrder(orderId);
         Order order = orderService.findOrderWithMemberAndItems(orderId);
         return ResponseEntity.ok(new OrderResponseDto(order));
+    }
+    
+    /**
+     * 디버깅용: 카테고리 목록 조회
+     */
+    @GetMapping("/debug/categories")
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getCategories() {
+        List<String> categories = orderService.getAllCategories();
+        log.info("🔍 데이터베이스 카테고리 목록: {}", categories);
+        return ResponseEntity.ok(categories);
     }
 }

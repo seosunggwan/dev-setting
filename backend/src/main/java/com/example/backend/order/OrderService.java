@@ -206,4 +206,11 @@ public class OrderService {
 
         return new PagedOrdersDto(orders, page, size, total);
     }
+    
+    /**
+     * 디버깅용: 모든 카테고리 조회
+     */
+    public List<String> getAllCategories() {
+        return orderRepository.findAllCategories();
+    }
 }
