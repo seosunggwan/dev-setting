@@ -17,6 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +52,55 @@ public class OrderController {
         // "ROLE_" 접두사 제거
         String roleName = authority.replace("ROLE_", "");
         return Role.valueOf(roleName);
+    }
+
+    /**
+     * 다양한 날짜 형식을 파싱하는 헬퍼 메서드
+     */
+    private LocalDateTime parseDateTime(String dateTimeStr) {
+        if (dateTimeStr == null || dateTimeStr.trim().isEmpty()) {
+            return null;
+        }
+
+        String trimmed = dateTimeStr.trim();
+        
+        // UTC 형식 처리 (Z로 끝나는 경우)
+        if (trimmed.endsWith("Z")) {
+            try {
+                // UTC를 LocalDateTime으로 변환 (시스템 로컬 시간대로 변환)
+                return Instant.parse(trimmed)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+            } catch (Exception e) {
+                log.warn("UTC 형식 파싱 실패: {} - 에러: {}", trimmed, e.getMessage());
+            }
+        }
+        
+        // 다양한 형식 시도
+        DateTimeFormatter[] formatters = {
+            DateTimeFormatter.ISO_LOCAL_DATE_TIME,  // 2024-01-15T10:30:00
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"),  // 2024-01-15T10:30:00
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"),     // 2024-01-15T10:30
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),    // 2024-01-15 10:30:00
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"),       // 2024-01-15 10:30
+            DateTimeFormatter.ofPattern("yyyy-MM-dd")              // 2024-01-15 (자정으로 처리)
+        };
+
+        for (DateTimeFormatter formatter : formatters) {
+            try {
+                if (formatter == DateTimeFormatter.ofPattern("yyyy-MM-dd")) {
+                    // 날짜만 있는 경우 자정으로 처리
+                    return LocalDateTime.parse(trimmed + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                } else {
+                    return LocalDateTime.parse(trimmed, formatter);
+                }
+            } catch (DateTimeParseException e) {
+                // 다음 형식 시도
+                continue;
+            }
+        }
+        
+        throw new DateTimeParseException("지원되지 않는 날짜 형식: " + trimmed, trimmed, 0);
     }
 
     /** 주문 폼용 데이터 (역할 기반) */
@@ -154,19 +207,25 @@ public class OrderController {
         orderSearch.setMinPrice(minPrice);
         orderSearch.setMaxPrice(maxPrice);
         
-        // 날짜 파싱
+        // 날짜 파싱 - 더 안전한 처리
         if (orderDateFrom != null && !orderDateFrom.isEmpty()) {
             try {
-                orderSearch.setOrderDateFrom(LocalDateTime.parse(orderDateFrom));
+                log.info("🔍 주문일시 시작 파싱 시도: {}", orderDateFrom);
+                LocalDateTime parsedFrom = parseDateTime(orderDateFrom);
+                orderSearch.setOrderDateFrom(parsedFrom);
+                log.info("✅ 주문일시 시작 파싱 성공: {}", parsedFrom);
             } catch (Exception e) {
-                log.warn("주문일시 시작 파싱 실패: {}", orderDateFrom);
+                log.warn("❌ 주문일시 시작 파싱 실패: {} - 에러: {}", orderDateFrom, e.getMessage());
             }
         }
         if (orderDateTo != null && !orderDateTo.isEmpty()) {
             try {
-                orderSearch.setOrderDateTo(LocalDateTime.parse(orderDateTo));
+                log.info("🔍 주문일시 끝 파싱 시도: {}", orderDateTo);
+                LocalDateTime parsedTo = parseDateTime(orderDateTo);
+                orderSearch.setOrderDateTo(parsedTo);
+                log.info("✅ 주문일시 끝 파싱 성공: {}", parsedTo);
             } catch (Exception e) {
-                log.warn("주문일시 끝 파싱 실패: {}", orderDateTo);
+                log.warn("❌ 주문일시 끝 파싱 실패: {} - 에러: {}", orderDateTo, e.getMessage());
             }
         }
 
@@ -271,19 +330,25 @@ public class OrderController {
         orderSearch.setMinPrice(minPrice);
         orderSearch.setMaxPrice(maxPrice);
         
-        // 날짜 파싱
+        // 날짜 파싱 - 더 안전한 처리
         if (orderDateFrom != null && !orderDateFrom.isEmpty()) {
             try {
-                orderSearch.setOrderDateFrom(LocalDateTime.parse(orderDateFrom));
+                log.info("🔍 주문일시 시작 파싱 시도: {}", orderDateFrom);
+                LocalDateTime parsedFrom = parseDateTime(orderDateFrom);
+                orderSearch.setOrderDateFrom(parsedFrom);
+                log.info("✅ 주문일시 시작 파싱 성공: {}", parsedFrom);
             } catch (Exception e) {
-                log.warn("주문일시 시작 파싱 실패: {}", orderDateFrom);
+                log.warn("❌ 주문일시 시작 파싱 실패: {} - 에러: {}", orderDateFrom, e.getMessage());
             }
         }
         if (orderDateTo != null && !orderDateTo.isEmpty()) {
             try {
-                orderSearch.setOrderDateTo(LocalDateTime.parse(orderDateTo));
+                log.info("🔍 주문일시 끝 파싱 시도: {}", orderDateTo);
+                LocalDateTime parsedTo = parseDateTime(orderDateTo);
+                orderSearch.setOrderDateTo(parsedTo);
+                log.info("✅ 주문일시 끝 파싱 성공: {}", parsedTo);
             } catch (Exception e) {
-                log.warn("주문일시 끝 파싱 실패: {}", orderDateTo);
+                log.warn("❌ 주문일시 끝 파싱 실패: {} - 에러: {}", orderDateTo, e.getMessage());
             }
         }
 

@@ -165,7 +165,7 @@ public class OrderRepository {
             } else {
                 jpql += " and";
             }
-            jpql += " oi.totalPrice >= :minPrice";
+            jpql += " (oi.orderPrice * oi.count) >= :minPrice";
         }
         
         if (orderSearch.getMaxPrice() != null) {
@@ -175,7 +175,7 @@ public class OrderRepository {
             } else {
                 jpql += " and";
             }
-            jpql += " oi.totalPrice <= :maxPrice";
+            jpql += " (oi.orderPrice * oi.count) <= :maxPrice";
         }
         
         jpql += " order by o.orderDate desc";
@@ -314,7 +314,7 @@ public class OrderRepository {
             } else {
                 jpql += " and";
             }
-            jpql += " oi.totalPrice >= :minPrice";
+            jpql += " (oi.orderPrice * oi.count) >= :minPrice";
         }
         
         if (orderSearch.getMaxPrice() != null) {
@@ -324,7 +324,7 @@ public class OrderRepository {
             } else {
                 jpql += " and";
             }
-            jpql += " oi.totalPrice <= :maxPrice";
+            jpql += " (oi.orderPrice * oi.count) <= :maxPrice";
         }
         
         TypedQuery<Long> query = em.createQuery(jpql, Long.class);
@@ -449,7 +449,7 @@ public class OrderRepository {
             } else {
                 jpql += " and";
             }
-            jpql += " oi.totalPrice >= :minPrice";
+            jpql += " (oi.orderPrice * oi.count) >= :minPrice";
         }
         
         if (orderSearch.getMaxPrice() != null) {
@@ -459,7 +459,7 @@ public class OrderRepository {
             } else {
                 jpql += " and";
             }
-            jpql += " oi.totalPrice <= :maxPrice";
+            jpql += " (oi.orderPrice * oi.count) <= :maxPrice";
         }
         
         jpql += " order by o.orderDate desc";
@@ -594,11 +594,11 @@ public class OrderRepository {
 
         // 금액 범위 검색
         if (orderSearch.getMinPrice() != null) {
-            jpql += " and oi.totalPrice >= :minPrice";
+            jpql += " and (oi.orderPrice * oi.count) >= :minPrice";
         }
 
         if (orderSearch.getMaxPrice() != null) {
-            jpql += " and oi.totalPrice <= :maxPrice";
+            jpql += " and (oi.orderPrice * oi.count) <= :maxPrice";
         }
 
         jpql += " order by o.orderDate desc";
@@ -674,11 +674,11 @@ public class OrderRepository {
 
         // 금액 범위 검색
         if (orderSearch.getMinPrice() != null) {
-            jpql += " and oi.totalPrice >= :minPrice";
+            jpql += " and (oi.orderPrice * oi.count) >= :minPrice";
         }
 
         if (orderSearch.getMaxPrice() != null) {
-            jpql += " and oi.totalPrice <= :maxPrice";
+            jpql += " and (oi.orderPrice * oi.count) <= :maxPrice";
         }
 
         jpql += " order by o.orderDate desc";
@@ -755,11 +755,11 @@ public class OrderRepository {
 
         // 금액 범위 검색
         if (orderSearch.getMinPrice() != null) {
-            jpql += " and oi.totalPrice >= :minPrice";
+            jpql += " and (oi.orderPrice * oi.count) >= :minPrice";
         }
 
         if (orderSearch.getMaxPrice() != null) {
-            jpql += " and oi.totalPrice <= :maxPrice";
+            jpql += " and (oi.orderPrice * oi.count) <= :maxPrice";
         }
 
         TypedQuery<Long> query = em.createQuery(jpql, Long.class);
