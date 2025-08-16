@@ -17,7 +17,7 @@ import java.util.List;
 public class Item {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)   // DB의 AUTO_INCREMENT와 매핑
     @Column(name = "item_id")
     private Long id;
 

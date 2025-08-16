@@ -13,7 +13,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Getter @Setter
 public class Delivery {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) // 명시적으로 적는 게 좋음
     @Column(name = "delivery_id")
     private Long id;
 
