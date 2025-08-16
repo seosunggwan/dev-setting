@@ -370,9 +370,9 @@ const OrderList = () => {
     try {
       if (!dateStr) return "날짜 정보 없음";
 
-      // 숫자 문자열이 밀리초 타임스탬프인 경우
+      // 숫자 문자열이 밀리초 타임스탬프인 경우 (13자리)
       const timestamp = Number(dateStr);
-      if (!isNaN(timestamp) && String(timestamp).length > 10) {
+      if (!isNaN(timestamp) && String(timestamp).length === 13) {
         const date = new Date(timestamp);
         if (date.toString() !== "Invalid Date") {
           return date.toLocaleString("ko-KR", {
@@ -386,10 +386,39 @@ const OrderList = () => {
         }
       }
 
-      // ISO 형식 문자열인 경우
-      const date = new Date(dateStr);
-      if (date.toString() !== "Invalid Date") {
-        return date.toLocaleString("ko-KR", {
+      // 숫자 문자열이 초 단위 타임스탬프인 경우 (10자리)
+      if (!isNaN(timestamp) && String(timestamp).length === 10) {
+        const date = new Date(timestamp * 1000);
+        if (date.toString() !== "Invalid Date") {
+          return date.toLocaleString("ko-KR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          });
+        }
+      }
+
+      // ISO 형식 문자열인 경우 (2024-01-15T10:30:00)
+      if (typeof dateStr === 'string' && dateStr.includes('T')) {
+        const date = new Date(dateStr);
+        if (date.toString() !== "Invalid Date") {
+          return date.toLocaleString("ko-KR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          });
+        }
+      }
+
+      // 일반 Date 객체인 경우
+      if (dateStr instanceof Date) {
+        return dateStr.toLocaleString("ko-KR", {
           year: "numeric",
           month: "long",
           day: "numeric",
@@ -399,10 +428,12 @@ const OrderList = () => {
         });
       }
 
-      return dateStr;
+      // 그 외의 경우 원본 반환
+      console.warn("알 수 없는 날짜 형식:", dateStr);
+      return String(dateStr);
     } catch (e) {
-      console.error("날짜 변환 오류:", e);
-      return dateStr;
+      console.error("날짜 변환 오류:", e, "원본 값:", dateStr);
+      return String(dateStr);
     }
   };
 

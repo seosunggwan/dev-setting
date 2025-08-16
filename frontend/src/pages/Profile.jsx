@@ -63,6 +63,7 @@ const Profile = () => {
   // 입력 필드 변경 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target;
+    console.log(`필드 변경: ${name} = ${value}`); // 디버깅 로그 추가
     setProfile((prev) => ({
       ...prev,
       [name]: value,
@@ -72,8 +73,10 @@ const Profile = () => {
   // 프로필 업데이트 핸들러
   const handleUpdateProfile = async () => {
     try {
+      console.log("프로필 업데이트 시작:", profile); // 디버깅 로그 추가
       setLoading(true);
       const updatedProfile = await updateUserProfile(profile);
+      console.log("프로필 업데이트 성공:", updatedProfile); // 디버깅 로그 추가
       setProfile(updatedProfile);
       setEditMode(false);
       setSnackbar({
@@ -83,9 +86,18 @@ const Profile = () => {
       });
     } catch (error) {
       console.error("프로필 업데이트 실패:", error);
+      let errorMessage = "프로필 업데이트에 실패했습니다.";
+      
+      // 더 자세한 에러 메시지 처리
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       setSnackbar({
         open: true,
-        message: error.message || "프로필 업데이트에 실패했습니다.",
+        message: errorMessage,
         severity: "error",
       });
     } finally {
@@ -154,34 +166,60 @@ const Profile = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => setEditMode(true)}
+              size="large"
+              onClick={() => {
+                console.log("수정하기 버튼 클릭됨, editMode를 true로 설정"); // 디버깅 로그
+                setEditMode(true);
+              }}
               disabled={loading}
+              sx={{
+                fontSize: "1.1rem",
+                fontWeight: "bold",
+                px: 3,
+                py: 1.5,
+                boxShadow: 2,
+                "&:hover": {
+                  boxShadow: 4,
+                }
+              }}
             >
-              수정하기
+              ✏️ 수정하기
             </Button>
           ) : (
             <Box>
               <Button
                 variant="contained"
-                color="primary"
+                color="success"
+                size="large"
                 onClick={handleUpdateProfile}
                 disabled={loading}
-                sx={{ mr: 1 }}
+                sx={{ mr: 1, px: 3, py: 1.5 }}
               >
-                저장
+                💾 저장
               </Button>
               <Button
                 variant="outlined"
+                size="large"
                 onClick={() => {
+                  console.log("취소 버튼 클릭됨, editMode를 false로 설정"); // 디버깅 로그
                   setEditMode(false);
                   fetchProfile(); // 원래 정보로 되돌리기
                 }}
                 disabled={loading}
+                sx={{ px: 3, py: 1.5 }}
               >
-                취소
+                ❌ 취소
               </Button>
             </Box>
           )}
+        </Box>
+
+        {/* 현재 상태 표시 (디버깅용) */}
+        <Box sx={{ mb: 2, p: 1, bgcolor: "grey.100", borderRadius: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            현재 상태: {editMode ? "수정 모드" : "보기 모드"} | 
+            로딩: {loading ? "예" : "아니오"}
+          </Typography>
         </Box>
 
         <Divider sx={{ mb: 3 }} />

@@ -60,6 +60,8 @@ export default function MyRoutes() {
         {/* 주문 관련 라우트 */}
         <Route path="/orders" element={<OrderList />} />
         <Route path="/order" element={<OrderForm />} />
+        <Route path="/order-form" element={<OrderForm />} />
+        <Route path="/order-search" element={<OrderList />} />
 
         {/* 게시글 관련 라우트 */}
         <Route path="/boards" element={<BoardList />} />
