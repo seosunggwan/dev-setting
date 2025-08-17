@@ -43,13 +43,19 @@ public class OrderRepository {
      * 주문 목록 조회 (회원과 주문 상품 정보를 함께 조회)
      */
     public List<Order> findAllWithMemberAndItems() {
-        return em.createQuery(
-                "select distinct o from Order o " +
-                        "join fetch o.member m " +
-                        "join fetch o.delivery d " +
-                        "join fetch o.orderItems oi " +
-                        "join fetch oi.item i", Order.class)
-                .getResultList();
+        List<Order> orders = em.createQuery(
+            "select o from Order o " +
+            "join fetch o.member m " +
+            "join fetch o.delivery d " +
+            "order by o.orderDate desc", Order.class
+        ).getResultList();
+    
+        // 배치 로딩 트리거
+        orders.forEach(o -> o.getOrderItems().size());
+        orders.stream().flatMap(o -> o.getOrderItems().stream())
+              .forEach(oi -> { if (oi.getItem() != null) oi.getItem().getId(); });
+    
+        return orders;
     }
 
     public List<Order> findAll() {
@@ -64,16 +70,17 @@ public class OrderRepository {
      * @return 주문 목록
      */
     public List<Order> findAllWithPaging(int offset, int limit) {
-        return em.createQuery(
-            "select distinct o from Order o " +
-            "join fetch o.member m " +
-            "join fetch o.delivery d " +
-            "join fetch o.orderItems oi " +
-            "join fetch oi.item i " +
-            "order by o.orderDate desc", Order.class)
+        // 1) to-one만 fetch join
+        List<Order> result = em.createQuery(
+                "select o from Order o " +
+                "join fetch o.member m " +
+                "join fetch o.delivery d " +
+                "order by o.orderDate desc", Order.class)
             .setFirstResult(offset)
             .setMaxResults(limit)
             .getResultList();
+    
+        return result;
     }
 
     /**
@@ -84,14 +91,12 @@ public class OrderRepository {
      * @return 검색 결과 주문 목록
      */
     public List<Order> findAllByStringWithPaging(OrderSearch orderSearch, int offset, int limit) {
-        String jpql = "select distinct o from Order o " +
-                      "join fetch o.member m " +
-                      "join fetch o.delivery d " +
-                      "join fetch o.orderItems oi " +
-                      "join fetch oi.item i";
-        
+        String jpql = "select o from Order o " +
+                      "join fetch o.member m " +   // ✅ to-one fetch join
+                      "join fetch o.delivery d";   // ✅ to-one fetch join
+    
         boolean isFirstCondition = true;
-        
+    
         // 주문 상태 검색
         if (orderSearch.getOrderStatus() != null) {
             if (isFirstCondition) {
@@ -102,7 +107,7 @@ public class OrderRepository {
             }
             jpql += " o.status = :status";
         }
-        
+    
         // 회원 이름 검색
         if (StringUtils.hasText(orderSearch.getMemberName())) {
             if (isFirstCondition) {
@@ -113,8 +118,8 @@ public class OrderRepository {
             }
             jpql += " m.username like :name";
         }
-        
-        // 상품명 검색
+    
+        // 상품명 검색 (❌ item fetch join 제거했으므로 exists 서브쿼리 활용)
         if (StringUtils.hasText(orderSearch.getItemName())) {
             if (isFirstCondition) {
                 jpql += " where";
@@ -122,10 +127,10 @@ public class OrderRepository {
             } else {
                 jpql += " and";
             }
-            jpql += " i.name like :itemName";
+            jpql += " exists (select 1 from o.orderItems oi join oi.item i where i.name like :itemName)";
         }
-        
-        // 카테고리명 검색
+    
+        // 카테고리명 검색 (마찬가지로 서브쿼리 활용)
         if (StringUtils.hasText(orderSearch.getCategoryName())) {
             if (isFirstCondition) {
                 jpql += " where";
@@ -133,9 +138,9 @@ public class OrderRepository {
             } else {
                 jpql += " and";
             }
-            jpql += " exists (select 1 from i.categories c where c.name = :categoryName)";
+            jpql += " exists (select 1 from o.orderItems oi join oi.item i join i.categories c where c.name = :categoryName)";
         }
-        
+    
         // 주문일시 범위 검색
         if (orderSearch.getOrderDateFrom() != null) {
             if (isFirstCondition) {
@@ -146,7 +151,7 @@ public class OrderRepository {
             }
             jpql += " o.orderDate >= :orderDateFrom";
         }
-        
+    
         if (orderSearch.getOrderDateTo() != null) {
             if (isFirstCondition) {
                 jpql += " where";
@@ -156,7 +161,7 @@ public class OrderRepository {
             }
             jpql += " o.orderDate <= :orderDateTo";
         }
-        
+    
         // 금액 범위 검색
         if (orderSearch.getMinPrice() != null) {
             if (isFirstCondition) {
@@ -165,9 +170,9 @@ public class OrderRepository {
             } else {
                 jpql += " and";
             }
-            jpql += " (oi.orderPrice * oi.count) >= :minPrice";
+            jpql += " exists (select 1 from o.orderItems oi where (oi.orderPrice * oi.count) >= :minPrice)";
         }
-        
+    
         if (orderSearch.getMaxPrice() != null) {
             if (isFirstCondition) {
                 jpql += " where";
@@ -175,49 +180,43 @@ public class OrderRepository {
             } else {
                 jpql += " and";
             }
-            jpql += " (oi.orderPrice * oi.count) <= :maxPrice";
+            jpql += " exists (select 1 from o.orderItems oi where (oi.orderPrice * oi.count) <= :maxPrice)";
         }
-        
+    
         jpql += " order by o.orderDate desc";
-        
+    
         TypedQuery<Order> query = em.createQuery(jpql, Order.class)
             .setFirstResult(offset)
             .setMaxResults(limit);
-        
+    
+        // 파라미터 바인딩
         if (orderSearch.getOrderStatus() != null) {
             query.setParameter("status", orderSearch.getOrderStatus());
         }
-        
         if (StringUtils.hasText(orderSearch.getMemberName())) {
             query.setParameter("name", "%" + orderSearch.getMemberName() + "%");
         }
-        
         if (StringUtils.hasText(orderSearch.getItemName())) {
             query.setParameter("itemName", "%" + orderSearch.getItemName() + "%");
         }
-        
         if (StringUtils.hasText(orderSearch.getCategoryName())) {
             query.setParameter("categoryName", convertCategoryToType(orderSearch.getCategoryName()));
         }
-        
         if (orderSearch.getOrderDateFrom() != null) {
             query.setParameter("orderDateFrom", orderSearch.getOrderDateFrom());
         }
-        
         if (orderSearch.getOrderDateTo() != null) {
             query.setParameter("orderDateTo", orderSearch.getOrderDateTo());
         }
-        
         if (orderSearch.getMinPrice() != null) {
             query.setParameter("minPrice", orderSearch.getMinPrice());
         }
-        
         if (orderSearch.getMaxPrice() != null) {
             query.setParameter("maxPrice", orderSearch.getMaxPrice());
         }
-        
+    
         return query.getResultList();
-    }
+    }    
 
     /**
      * 전체 주문 수 조회

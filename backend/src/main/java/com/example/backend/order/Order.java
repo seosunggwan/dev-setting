@@ -13,6 +13,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.BatchSize;
 
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -30,9 +31,12 @@ public class Order {
     @JoinColumn(name = "member_id")
     private UserEntity member;
 
+
     @JsonIgnore
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL /*, orphanRemoval = true 옵션 필요시*/)
+    @BatchSize(size = 100) // 👈 배치 로딩 사이즈
     private List<OrderItem> orderItems = new ArrayList<>();
+
 
     @JsonIgnore
     @OneToOne(fetch = LAZY, cascade = CascadeType.ALL)

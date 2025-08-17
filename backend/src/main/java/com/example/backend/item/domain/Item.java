@@ -5,6 +5,7 @@ import com.example.backend.item.Category;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 @DiscriminatorColumn(name = "dtype")
 @DiscriminatorValue("Item")
 @Getter @Setter
+@BatchSize(size = 100)   // ✅ 여기에 붙이면 OrderItem → Item 로딩 시 배치 조회
 public class Item {
 
     @Id
