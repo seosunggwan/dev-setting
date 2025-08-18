@@ -18,53 +18,48 @@ repositories {
 }
 
 dependencies {
-	// Spring Boot 기본 스타터 패키지들
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA (ORM)
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis' // Redis 연동
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client' // OAuth2 소셜 로그인
-	implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Security (보안)
-	implementation 'org.springframework.boot:spring-boot-starter-web' // Spring MVC (REST API)
-	implementation 'org.springframework.boot:spring-boot-starter-websocket' // WebSocket 지원
-	implementation 'org.springframework.boot:spring-boot-starter-validation' // 유효성 검증을 위한 의존성 추가
-
+	// Spring Boot 기본 스타터
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.1'
-	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.574' // AWS SDK v1 추가
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.574'
 
-	// WebRTC 관련 의존성
+	// WebRTC
 	implementation 'org.kurento:kurento-client:7.0.0'
 	implementation 'org.kurento:kurento-utils-js:7.0.0'
 
-	// JWT (JSON Web Token) 인증 관련 라이브러리 (0.12.5 최신 버전)
+	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.5'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 
-	// Lombok (코드 간소화 - Getter, Setter, Constructor 자동 생성)ss
+	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	// MySQL 드라이버 (데이터베이스 연동)
+	// MySQL
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
-	// 테스트 관련 라이브러리
-	testImplementation 'org.springframework.boot:spring-boot-starter-test' // 기본 테스트 지원
-	testImplementation 'org.springframework.security:spring-security-test' // Security 관련 테스트 지원
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 실행기
-
-	// H2 데이터베이스 (테스트 전용)
+	// 테스트
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'com.h2database:h2:2.2.224'
-
-	// TestContainers 의존성 - 실제 DB 환경으로 테스트 (선택사항)
 	testImplementation 'org.testcontainers:junit-jupiter:1.19.3'
 	testImplementation 'org.testcontainers:mysql:1.19.3'
 	testImplementation 'org.testcontainers:testcontainers:1.19.3'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 
-	// .env 파일 지원을 위한 의존성
+	// .env
 	implementation 'me.paulschwarz:spring-dotenv:3.0.0'
 
-	// Prometheus & Actuator
+	// 모니터링
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.micrometer:micrometer-registry-prometheus:1.11.3'
 
@@ -73,11 +68,32 @@ dependencies {
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
 	implementation 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
-	// ✅ QueryDSL (JPA + APT)
+	// ✅ QueryDSL
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 	annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
-	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
-	annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+
+// ✅ JPA 어노테이션 API 추가 (여기가 중요!)
+	annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+	annotationProcessor 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+
+}
+
+def querydslDir = "$buildDir/generated/querydsl"
+
+sourceSets {
+	main {
+		java {
+			srcDirs += [ querydslDir ]
+		}
+	}
+}
+
+tasks.withType(JavaCompile) {
+	options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+}
+
+clean {
+	delete file(querydslDir)
 }
 
 tasks.named('test') {

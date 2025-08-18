@@ -39,4 +39,20 @@ public class Category {
         child.setParent(this);
     }
 
+    /**
+     * 아이템 추가
+     */
+    public void addItem(Item item) {
+        this.items.add(item);
+        item.getCategories().add(this);
+    }
+
+    /**
+     * 아이템 제거
+     */
+    public void removeItem(Item item) {
+        this.items.remove(item);
+        item.getCategories().remove(this);
+    }
+
 }

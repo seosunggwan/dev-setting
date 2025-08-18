@@ -52,19 +52,25 @@ public class OrderResponseDto {
             this.orderPrice = orderItem.getOrderPrice();
             this.count = orderItem.getCount();
             
-            // 상품 타입 판별
+            // Category 테이블에서 실제 카테고리명 가져오기
+            String categoryName = item.getCategories().stream()
+                    .findFirst()
+                    .map(category -> category.getName())
+                    .orElse("기타");
+            
+            // 상품 타입 판별 (fallback용)
             if (item instanceof Book) {
                 this.itemType = "BOOK";
-                this.itemTypeDisplay = "도서";
+                this.itemTypeDisplay = categoryName;
             } else if (item instanceof Album) {
                 this.itemType = "ALBUM";
-                this.itemTypeDisplay = "음반";
+                this.itemTypeDisplay = categoryName;
             } else if (item instanceof Movie) {
                 this.itemType = "MOVIE";
-                this.itemTypeDisplay = "영화";
+                this.itemTypeDisplay = categoryName;
             } else {
                 this.itemType = "UNKNOWN";
-                this.itemTypeDisplay = "기타";
+                this.itemTypeDisplay = categoryName;
             }
         }
     }

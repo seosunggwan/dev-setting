@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@DiscriminatorValue("A")
+@DiscriminatorValue("Album")
 @Getter
 @Setter
 public class Album extends Item {

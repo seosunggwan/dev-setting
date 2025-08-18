@@ -4,6 +4,7 @@ import com.example.backend.item.domain.Album;
 import com.example.backend.item.domain.Book;
 import com.example.backend.item.domain.Item;
 import com.example.backend.item.domain.Movie;
+import com.example.backend.item.dto.ItemDto;
 import com.example.backend.item.dto.PagedItemsDto;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
@@ -19,13 +20,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+
 @Slf4j
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final CategoryRepository categoryRepository;
     private final AmazonS3 amazonS3;
     
     @Value("${spring.cloud.aws.s3.bucket}")
@@ -82,9 +84,35 @@ public class ItemService {
                 throw new IllegalArgumentException("지원하지 않는 아이템 타입입니다: " + form.getItemType());
         }
         
+        // 상품 저장 (dtype으로 자동 구분됨)
         itemRepository.save(item);
+        
+        // 카테고리 자동 연결
+        connectDefaultCategory(item);
+        
+        log.info("✅ 상품 '{}' 등록 완료", item.getName());
+        
         return item.getId();
     }
+
+    /**
+     * 아이템의 기본 카테고리 연결
+     */
+    private void connectDefaultCategory(Item item) {
+        String code = getCategoryCodeByItemType(item); // "B"/"A"/"M"/(옵션 "ETC")
+        if (code != null) {
+            Category category = categoryRepository.findOrCreateByName(code); // ✅ 코드로 찾음/만듦
+            item.addCategory(category); // 양방향 편의메서드라 조인테이블 반영됨
+        }
+    }
+
+    private String getCategoryCodeByItemType(Item item) {
+        if (item instanceof Book)  return "도서";
+        if (item instanceof Album) return "음반";
+        if (item instanceof Movie) return "영화";
+        return "기타";
+    }
+
 
     public List<Item> findItems() {
         return itemRepository.findAll();

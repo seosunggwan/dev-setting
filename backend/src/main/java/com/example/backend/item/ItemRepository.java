@@ -1,6 +1,7 @@
 package com.example.backend.item;
 
 import com.example.backend.item.domain.Item;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -8,27 +9,37 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.example.backend.item.domain.QItem.item;
+import static com.example.backend.order.QOrderItem.orderItem;
+
 @Repository
 @RequiredArgsConstructor
 public class ItemRepository {
 
     private final EntityManager em;
+    private final JPAQueryFactory queryFactory;
 
-    public void save(Item item) {
-        if (item.getId() == null) {
-            em.persist(item);
+    public void save(Item itemEntity) {
+        if (itemEntity.getId() == null) {
+            em.persist(itemEntity);
         } else {
-            em.merge(item);
+            // 변경감지로 업데이트하려면 find 후 필드만 변경하는 게 더 안전하지만,
+            // 기존 로직 유지: merge 사용
+            em.merge(itemEntity);
         }
     }
 
     public Item findOne(Long id) {
-        return em.find(Item.class, id);
+        return queryFactory
+                .selectFrom(item)
+                .where(item.id.eq(id))
+                .fetchOne();
     }
 
     public List<Item> findAll() {
-        return em.createQuery("select i from Item i", Item.class)
-                .getResultList();
+        return queryFactory
+                .selectFrom(item)
+                .fetch();
     }
 
     /**
@@ -38,10 +49,12 @@ public class ItemRepository {
      * @return 상품 목록
      */
     public List<Item> findAllWithPaging(int offset, int limit) {
-        return em.createQuery("select i from Item i order by i.id desc", Item.class)
-                .setFirstResult(offset)
-                .setMaxResults(limit)
-                .getResultList();
+        return queryFactory
+                .selectFrom(item)
+                .orderBy(item.id.desc())
+                .offset(offset)
+                .limit(limit)
+                .fetch();
     }
 
     /**
@@ -52,11 +65,13 @@ public class ItemRepository {
      * @return 검색된 상품 목록
      */
     public List<Item> findByNameContaining(String keyword, int offset, int limit) {
-        return em.createQuery("select i from Item i where lower(i.name) like lower(:keyword) order by i.id desc", Item.class)
-                .setParameter("keyword", "%" + keyword + "%")
-                .setFirstResult(offset)
-                .setMaxResults(limit)
-                .getResultList();
+        return queryFactory
+                .selectFrom(item)
+                .where(item.name.containsIgnoreCase(keyword))
+                .orderBy(item.id.desc())
+                .offset(offset)
+                .limit(limit)
+                .fetch();
     }
 
     /**
@@ -65,9 +80,12 @@ public class ItemRepository {
      * @return 검색된 상품 수
      */
     public long countByNameContaining(String keyword) {
-        return em.createQuery("select count(i) from Item i where lower(i.name) like lower(:keyword)", Long.class)
-                .setParameter("keyword", "%" + keyword + "%")
-                .getSingleResult();
+        Long cnt = queryFactory
+                .select(item.count())
+                .from(item)
+                .where(item.name.containsIgnoreCase(keyword))
+                .fetchOne();
+        return cnt != null ? cnt : 0L;
     }
 
     /**
@@ -75,27 +93,35 @@ public class ItemRepository {
      * @return 전체 상품 수
      */
     public long count() {
-        return em.createQuery("select count(i) from Item i", Long.class)
-                .getSingleResult();
+        Long cnt = queryFactory
+                .select(item.count())
+                .from(item)
+                .fetchOne();
+        return cnt != null ? cnt : 0L;
     }
 
     @Transactional
     public void delete(Long id) {
-        Item item = findOne(id);
-        if (item == null) {
+        // 존재 확인 (영속 상태 보장 위해 em.find 사용)
+        Item target = em.find(Item.class, id);
+        if (target == null) {
             throw new IllegalStateException("삭제할 상품을 찾을 수 없습니다.");
         }
 
-        // OrderItem 참조 확인
-        Long orderItemCount = em.createQuery(
-                "select count(oi) from OrderItem oi where oi.item.id = :itemId", Long.class)
-                .setParameter("itemId", id)
-                .getSingleResult();
-        
-        if (orderItemCount > 0) {
+        // OrderItem 참조 여부 체크 (QueryDSL)
+        Long refCnt = queryFactory
+                .select(orderItem.count())
+                .from(orderItem)
+                .where(orderItem.item.id.eq(id))
+                .fetchOne();
+
+        if (refCnt != null && refCnt > 0) {
             throw new IllegalStateException("이미 주문에 사용된 상품은 삭제할 수 없습니다.");
         }
-        
-        em.remove(item);
+
+        em.remove(target);
+
+        // ※ 대안) 라이프사이클 콜백/캐스케이드 필요 없고 벌크로 지워도 된다면:
+        // queryFactory.delete(item).where(item.id.eq(id)).execute();
     }
 }

@@ -51,4 +51,25 @@ public class Item {
         }
         this.stockQuantity = restStock;
     }
+
+    /**
+     * 카테고리 추가
+     */
+    public void addCategory(Category category) {
+        this.categories.add(category);
+        category.getItems().add(this);
+    }
+
+    /**
+     * 아이템 타입에 따른 기본 카테고리명 반환
+     */
+    public String getDefaultCategoryName() {
+        String dtype = this.getClass().getSimpleName();
+        switch (dtype) {
+            case "Book": return "도서";
+            case "Album": return "음반";
+            case "Movie": return "영화";
+            default: return null;
+        }
+    }
 }
