@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import java.util.Arrays;
 @Slf4j
 @Aspect
 @Component
+@ConditionalOnBean(RedisTemplate.class)  // Redis가 있을 때만 활성화
 @RequiredArgsConstructor
 public class CachingAspect {
 
