@@ -4,7 +4,6 @@ import com.example.backend.item.domain.Album;
 import com.example.backend.item.domain.Book;
 import com.example.backend.item.domain.Item;
 import com.example.backend.item.domain.Movie;
-import com.example.backend.item.dto.ItemDto;
 import com.example.backend.item.dto.PagedItemsDto;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
