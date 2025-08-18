@@ -1,6 +1,5 @@
 package com.example.backend.order;
 
-import com.example.backend.item.domain.Item;
 import com.example.backend.item.QCategory;
 import com.example.backend.item.domain.QItem;
 import com.querydsl.core.BooleanBuilder;

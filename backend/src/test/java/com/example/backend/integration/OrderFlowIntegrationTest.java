@@ -3,7 +3,6 @@ import com.example.backend.item.ItemRepository;
 import com.example.backend.item.domain.Item;
 import com.example.backend.order.Order;
 import com.example.backend.order.OrderItem;
-import com.example.backend.order.OrderRepository;
 import com.example.backend.order.OrderService;
 import com.example.backend.security.entity.Address;
 import com.example.backend.security.entity.UserEntity;
@@ -47,7 +46,6 @@ class OrderFlowIntegrationTest {
 	@Autowired private OrderService orderService;
 	@Autowired private UserRepository userRepository;
 	@Autowired private ItemRepository itemRepository;
-	@Autowired private OrderRepository orderRepository;
 
 	// Redis 관련 빈 mock 처리로 연결 시도 차단
 	@MockBean private RedisConnectionFactory redisConnectionFactory;

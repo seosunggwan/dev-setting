@@ -2,8 +2,6 @@ package com.example.backend.order;
 
 import com.example.backend.item.ItemService;
 import com.example.backend.item.domain.Item;
-import com.example.backend.order.dto.OrderFormData;
-import com.example.backend.order.dto.OrderRequest;
 import com.example.backend.security.entity.Address;
 import com.example.backend.security.entity.UserEntity;
 import com.example.backend.security.jwt.JWTFilter;

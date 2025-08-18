@@ -115,7 +115,6 @@ class OrderServiceTest {
 		given(itemRepository.findOne(10L)).willReturn(item);
 
 		// when
-		Long orderId = orderService.order(1L, 10L, 2);
 
 		// then
 		assertThat(item.getStockQuantity()).isEqualTo(3); // 5 -> 3
