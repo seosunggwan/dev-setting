@@ -25,6 +25,63 @@ services:
           cpus: "2"  # 최대 2개의 코어 할당
           memory: 2GB   # 최대 2GB 메모리 할당
 
+  # 로컬 개발 시에는 주석 처리 (로컬에서 직접 실행)
+  spring-app:
+    build: ./backend
+    container_name: spring-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      # Database Configuration
+      RDS_ENDPOINT: db
+      RDS_PASSWORD: ${RDS_PASSWORD:-portfolio1234}
+      # JWT Configuration
+      JWT_SECRET: ${JWT_SECRET:-your-256-bit-secret-your-256-bit-secret-your-256-bit-secret-your-256-bit-secret}
+      # OAuth2 Configuration
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID:-your-naver-client-id}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET:-your-naver-client-secret}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-your-google-client-id}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-your-google-client-secret}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-your-github-client-id}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-your-github-client-secret}
+      # AWS S3 Configuration
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-your-s3-bucket}
+      AWS_REGION: ${AWS_REGION:-ap-northeast-2}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY:-your-aws-access-key}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY:-your-aws-secret-key}
+      # Redis Configuration
+      SPRING_DATA_REDIS_HOST: redis-server
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-1234}
+      # Kafka Configuration
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      # Elasticsearch Configuration
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      # CORS Configuration
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      # JVM Configuration
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'    # CPU 2코어로 제한
+          memory: 1G   # 전체 메모리 1GB로 제한
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    depends_on:
+      db:
+        condition: service_healthy  # MySQL의 health check가 성공할 때까지 대기
+      redis:
+        condition: service_started  # Redis가 시작되면 바로 시작
+      kafka:
+        condition: service_started  # Kafka가 시작되면 바로 시작
+      elasticsearch:
+        condition: service_healthy  # Elasticsearch 헬스체크 통과까지 대기
+    networks:
+      - monitoring
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -224,6 +281,28 @@ services:
       resources:
         limits:
           cpus: '0.5'
+          memory: 512M
+
+  # 로컬 개발 시에는 주석 처리 (로컬에서 직접 실행)
+  react-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+    container_name: react-app
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+    networks:
+      - monitoring
+    depends_on:
+      - spring-app
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
           memory: 512M
 
 volumes:

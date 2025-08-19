@@ -124,8 +124,10 @@ public class SecurityConfig {
                         TokenConstants.TOKEN_REISSUE_PATH,
                         "/auth/logout",
                         "/actuator/**",
-                        "/api/boards/popular/test" // 개발용 인기글 테스트 API
+                        "/api/boards/popular/test", // 개발용 인기글 테스트 API
+                        "/kafka/**", "/search/**" // Kafka, Elasticsearch 테스트 엔드포인트
                     ).permitAll()
+                    .requestMatchers("/api/kafka/**", "/api/search/**").permitAll()
                     .requestMatchers("/admin").hasAuthority("ADMIN")
                     .anyRequest().authenticated()
                 );

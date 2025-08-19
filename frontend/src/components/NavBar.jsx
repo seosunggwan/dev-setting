@@ -34,6 +34,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import ArticleIcon from "@mui/icons-material/Article";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import BugReportIcon from "@mui/icons-material/BugReport";
 
 export default function NavBar() {
   const { isLoggedIn, logout, loginUser } = useLogin();

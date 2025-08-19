@@ -72,10 +72,12 @@ dependencies {
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 	annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
 
-// ✅ JPA 어노테이션 API 추가 (여기가 중요!)
+	// ✅ JPA 어노테이션 API 추가 (여기가 중요!)
 	annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
 	annotationProcessor 'jakarta.annotation:jakarta.annotation-api:2.1.1'
 
+	implementation 'org.springframework.kafka:spring-kafka'
+  	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 }
 
 def querydslDir = "$buildDir/generated/querydsl"

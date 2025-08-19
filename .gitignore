@@ -97,6 +97,7 @@ grafana_data/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.prod
 **/application-*.yml
 **/application-*.properties
 config/secrets.yml
